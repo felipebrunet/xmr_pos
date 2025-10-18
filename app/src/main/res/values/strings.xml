@@ -1,3 +1,22 @@
 <resources>
-    <string name="app_name">xmr pos</string>
+    <string name="app_name">XMR POS</string>
+    <string name="restaurant_name_placeholder">Restaurant Name</string>
+    <string name="settings_button">SETTINGS</string>
+    <string name="pay_button">PAY</string>
+    <string name="numpad_delete">DELETE</string>
+    <string name="payment_screen_amount_to_pay">Amount to pay: %1$s %2$s</string>
+    <string name="payment_screen_qr_code_description">Monero Payment QR Code</string>
+    <string name="back_button">Back</string>
+    <string name="settings_screen_title">Settings</string>
+    <string name="settings_currency_label">Currency:</string>
+    <string name="settings_tips_label">Tips:</string>
+    <string name="delete_pin_button">DELETE PIN</string>
+    <string name="settings_server_url_label">Monero server URL:</string>
+    <string name="settings_base_address_label">Monero base address:</string>
+    <string name="settings_view_key_label">Monero secret view key:</string>
+    <string name="settings_major_index_label">Monero major index:</string>
+    <string name="settings_minor_index_label">Monero max minor index:</string>
+    <string name="settings_restaurant_name_label">Restaurant name:</string>
+    <string name="go_back_button">GO BACK</string>
+    <string name="save_button">SAVE</string>
 </resources>

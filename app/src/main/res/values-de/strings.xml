@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">XMR POS</string>
+    <string name="restaurant_name_placeholder">Restaurantname</string>
+    <string name="settings_button">EINSTELLUNGEN</string>
+    <string name="pay_button">BEZAHLEN</string>
+    <string name="numpad_delete">LÖSCHEN</string>
+    <string name="payment_screen_amount_to_pay">Zu zahlender Betrag: %1$s %2$s</string>
+    <string name="payment_screen_qr_code_description">Monero Zahlungs-QR-Code</string>
+    <string name="back_button">Zurück</string>
+    <string name="settings_screen_title">Einstellungen</string>
+    <string name="settings_currency_label">Währung:</string>
+    <string name="settings_tips_label">Trinkgelder:</string>
+    <string name="delete_pin_button">PIN LÖSCHEN</string>
+    <string name="settings_server_url_label">Monero-Server-URL:</string>
+    <string name="settings_base_address_label">Monero-Basisadresse:</string>
+    <string name="settings_view_key_label">Geheimer Ansichtsschlüssel für Monero:</string>
+    <string name="settings_major_index_label">Monero-Hauptindex:</string>
+    <string name="settings_minor_index_label">Maximaler Monero-Nebenindex:</string>
+    <string name="settings_restaurant_name_label">Restaurantname:</string>
+    <string name="go_back_button">ZURÜCK</string>
+    <string name="save_button">SPEICHERN</string>
+</resources>
