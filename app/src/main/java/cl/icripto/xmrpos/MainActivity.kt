@@ -18,6 +18,7 @@ import cl.icripto.xmrpos.ui.PaymentScreen
 import cl.icripto.xmrpos.ui.PinScreen
 import cl.icripto.xmrpos.ui.PosScreen
 import cl.icripto.xmrpos.ui.SettingsScreen
+import cl.icripto.xmrpos.ui.UnlockScreen
 import cl.icripto.xmrpos.ui.theme.XmrPosTheme
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
 import cl.icripto.xmrpos.viewmodel.SettingsViewModelFactory
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("settings") { SettingsScreen(navController, settingsViewModel) }
                     composable("pin") { PinScreen(navController, settingsViewModel) }
+                    composable("unlock") { UnlockScreen(navController, settingsViewModel) }
                 }
             }
         }

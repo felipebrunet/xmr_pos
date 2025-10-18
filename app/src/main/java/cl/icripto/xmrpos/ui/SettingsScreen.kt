@@ -23,7 +23,19 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
-    val settings by viewModel.settingsFlow.collectAsState(initial = AppSettings("USD",false,"","","","1","0", "", ""))
+    val settings by viewModel.settingsFlow.collectAsState(
+        initial = AppSettings(
+            currency = "USD",
+            tipsEnabled = false,
+            moneroServerUrl = "",
+            moneroAddress = "",
+            secretViewKey = "",
+            majorIndex = "1",
+            maxMinorIndex = "0",
+            restaurantName = "",
+            pin = ""
+        )
+    )
     val scope = rememberCoroutineScope()
 
     var currency by remember(settings.currency) { mutableStateOf(settings.currency) }

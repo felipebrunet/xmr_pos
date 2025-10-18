@@ -28,7 +28,19 @@ import cl.icripto.xmrpos.data.AppSettings
 @Composable
 fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     var amount by remember { mutableStateOf("") }
-    val settings by settingsViewModel.settingsFlow.collectAsState(initial = AppSettings("USD",false,"","","","1","0", "", ""))
+    val settings by settingsViewModel.settingsFlow.collectAsState(
+        initial = AppSettings(
+            currency = "USD",
+            tipsEnabled = false,
+            moneroServerUrl = "",
+            moneroAddress = "",
+            secretViewKey = "",
+            majorIndex = "1",
+            maxMinorIndex = "0",
+            restaurantName = "",
+            pin = ""
+        )
+    )
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -46,7 +58,16 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             Text(text = settings.restaurantName.ifEmpty { stringResource(R.string.restaurant_name_placeholder) }, modifier = Modifier.fillMaxWidth().border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)).padding(12.dp), textAlign = TextAlign.Center, fontSize = 18.sp)
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = { navController.navigate("settings") }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575))) { Text(stringResource(R.string.settings_button)) }
+                Button(
+                    onClick = { 
+                        if (settings.pin.isEmpty()) {
+                            navController.navigate("settings")
+                        } else {
+                            navController.navigate("unlock")
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575))
+                ) { Text(stringResource(R.string.settings_button)) }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = if (amount.isEmpty()) "0" else amount, fontSize = 32.sp, modifier = Modifier.weight(1f).border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)).padding(vertical = 8.dp), textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -83,13 +104,14 @@ fun Numpad(onAmountChange: (String) -> Unit, currentAmount: String) {
                         else -> currentAmount + buttonText
                     }
                     onAmountChange(newAmount)
-                }
+                },
+                 modifier = Modifier.height(80.dp) // Increased height
             ) {
                 Text(
                     text = if (buttonText == "DELETE") stringResource(R.string.numpad_delete) else buttonText,
                     color = Color.White,
                     fontSize = if (buttonText == "DELETE") 16.sp else 24.sp,
-                    modifier = Modifier.padding(vertical = 12.dp)
+                    softWrap = false
                 )
             }
         }
