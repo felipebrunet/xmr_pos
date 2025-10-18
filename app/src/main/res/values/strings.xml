@@ -14,6 +14,8 @@
     <string name="set_pin_button">SET PIN</string>
     <string name="unlock_screen_title">Enter PIN to Unlock</string>
     <string name="unlock_button">UNLOCK</string>
+    <string name="tip_dialog_title">Select Tip</string>
+    <string name="tip_dialog_no_tip">No Tip</string>
     <string name="settings_server_url_label">Monero server URL:</string>
     <string name="settings_base_address_label">Monero base address:</string>
     <string name="settings_view_key_label">Monero secret view key:</string>

@@ -6,11 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,10 +16,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import cl.icripto.xmrpos.R
-import cl.icripto.xmrpos.viewmodel.SettingsViewModel
 import cl.icripto.xmrpos.data.AppSettings
+import cl.icripto.xmrpos.viewmodel.SettingsViewModel
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
 fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
@@ -41,6 +40,20 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             pin = ""
         )
     )
+    var showTipDialog by remember { mutableStateOf(false) }
+
+    if (showTipDialog) {
+        TipDialog(
+            onDismiss = { showTipDialog = false },
+            onTipSelected = { tipPercentage ->
+                val originalAmount = amount.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                val tip = originalAmount.multiply(tipPercentage)
+                val finalAmount = originalAmount.add(tip).setScale(2, RoundingMode.HALF_UP)
+                navController.navigate("payment/${finalAmount.toPlainString()}")
+                showTipDialog = false
+            }
+        )
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -76,8 +89,41 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             Spacer(modifier = Modifier.height(24.dp))
             Numpad(onAmountChange = { newAmount -> amount = newAmount }, currentAmount = amount)
             Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = { val finalAmount = if (amount.isEmpty()) "0" else amount; navController.navigate("payment/$finalAmount") }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)), contentPadding = PaddingValues(vertical = 16.dp)) { Text(stringResource(R.string.pay_button), fontSize = 20.sp) }
+            Button(
+                onClick = {
+                    if (settings.tipsEnabled) {
+                        showTipDialog = true
+                    } else {
+                        val finalAmount = if (amount.isEmpty()) "0" else amount
+                        navController.navigate("payment/$finalAmount")
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)),
+                contentPadding = PaddingValues(vertical = 16.dp)
+            ) { Text(stringResource(R.string.pay_button), fontSize = 20.sp) }
             Spacer(modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+fun TipDialog(onDismiss: () -> Unit, onTipSelected: (BigDecimal) -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color(0xFFFFF8E1)
+        ) {
+            Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(stringResource(R.string.tip_dialog_title), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                    Button(onClick = { onTipSelected(BigDecimal.ZERO) }, contentPadding = PaddingValues(horizontal = 8.dp)) { Text(stringResource(R.string.tip_dialog_no_tip), fontSize = 12.sp) }
+                    Button(onClick = { onTipSelected(BigDecimal("0.05")) }, contentPadding = PaddingValues(horizontal = 8.dp)) { Text("5%", fontSize = 12.sp) }
+                    Button(onClick = { onTipSelected(BigDecimal("0.10")) }, contentPadding = PaddingValues(horizontal = 8.dp)) { Text("10%", fontSize = 12.sp) }
+                    Button(onClick = { onTipSelected(BigDecimal("0.20")) }, contentPadding = PaddingValues(horizontal = 8.dp)) { Text("20%", fontSize = 12.sp) }
+                }
+            }
         }
     }
 }
@@ -105,7 +151,7 @@ fun Numpad(onAmountChange: (String) -> Unit, currentAmount: String) {
                     }
                     onAmountChange(newAmount)
                 },
-                 modifier = Modifier.height(80.dp) // Increased height
+                 modifier = Modifier.height(80.dp)
             ) {
                 Text(
                     text = if (buttonText == "DELETE") stringResource(R.string.numpad_delete) else buttonText,

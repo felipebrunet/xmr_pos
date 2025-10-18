@@ -14,6 +14,8 @@
     <string name="set_pin_button">PIN FESTLEGEN</string>
     <string name="unlock_screen_title">PIN zum Entsperren eingeben</string>
     <string name="unlock_button">ENTSPERREN</string>
+    <string name="tip_dialog_title">Trinkgeld auswählen</string>
+    <string name="tip_dialog_no_tip">Kein Trinkgeld</string>
     <string name="settings_server_url_label">Monero-Server-URL:</string>
     <string name="settings_base_address_label">Monero-Basisadresse:</string>
     <string name="settings_view_key_label">Geheimer Ansichtsschlüssel für Monero:</string>
