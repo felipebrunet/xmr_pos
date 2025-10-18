@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cl.icripto.xmrpos.data.SettingsRepository
 import cl.icripto.xmrpos.ui.PaymentScreen
+import cl.icripto.xmrpos.ui.PinScreen
 import cl.icripto.xmrpos.ui.PosScreen
 import cl.icripto.xmrpos.ui.SettingsScreen
 import cl.icripto.xmrpos.ui.theme.XmrPosTheme
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable("settings") { SettingsScreen(navController, settingsViewModel) }
+                    composable("pin") { PinScreen(navController, settingsViewModel) }
                 }
             }
         }

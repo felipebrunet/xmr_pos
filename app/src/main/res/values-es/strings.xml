@@ -11,6 +11,7 @@
     <string name="settings_currency_label">Moneda:</string>
     <string name="settings_tips_label">Propinas:</string>
     <string name="delete_pin_button">BORRAR PIN</string>
+    <string name="set_pin_button">FIJAR PIN</string>
     <string name="settings_server_url_label">URL del servidor de Monero:</string>
     <string name="settings_base_address_label">Dirección base de Monero:</string>
     <string name="settings_view_key_label">Clave de vista secreta de Monero:</string>

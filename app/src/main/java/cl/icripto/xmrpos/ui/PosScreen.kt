@@ -28,7 +28,7 @@ import cl.icripto.xmrpos.data.AppSettings
 @Composable
 fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel) {
     var amount by remember { mutableStateOf("") }
-    val settings by settingsViewModel.settingsFlow.collectAsState(initial = AppSettings("",false,"","","","","",""))
+    val settings by settingsViewModel.settingsFlow.collectAsState(initial = AppSettings("USD",false,"","","","1","0", "", ""))
 
     Surface(
         modifier = Modifier.fillMaxSize(),

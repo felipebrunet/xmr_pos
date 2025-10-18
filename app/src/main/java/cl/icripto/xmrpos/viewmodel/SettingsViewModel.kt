@@ -2,14 +2,26 @@ package cl.icripto.xmrpos.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import cl.icripto.xmrpos.data.AppSettings
 import cl.icripto.xmrpos.data.SettingsRepository
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
     val settingsFlow = repository.settingsFlow
 
-    suspend fun saveSettings(settings: AppSettings) {
-        repository.saveSettings(settings)
+    fun saveSettings(settings: AppSettings) {
+        viewModelScope.launch {
+            repository.saveSettings(settings)
+        }
+    }
+
+    fun savePin(pin: String) {
+        viewModelScope.launch {
+            val currentSettings = repository.settingsFlow.first()
+            repository.saveSettings(currentSettings.copy(pin = pin))
+        }
     }
 }
 

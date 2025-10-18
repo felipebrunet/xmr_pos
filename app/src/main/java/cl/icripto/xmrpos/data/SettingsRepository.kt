@@ -20,7 +20,8 @@ data class AppSettings(
     val secretViewKey: String,
     val majorIndex: String,
     val maxMinorIndex: String,
-    val restaurantName: String
+    val restaurantName: String,
+    val pin: String // Added PIN
 )
 
 class SettingsRepository(context: Context) {
@@ -36,6 +37,7 @@ class SettingsRepository(context: Context) {
         val MAJOR_INDEX = stringPreferencesKey("major_index")
         val MAX_MINOR_INDEX = stringPreferencesKey("max_minor_index")
         val RESTAURANT_NAME = stringPreferencesKey("restaurant_name")
+        val PIN = stringPreferencesKey("pin") // Added PIN key
     }
 
     val settingsFlow: Flow<AppSettings> = dataStore.data.map { preferences ->
@@ -47,7 +49,8 @@ class SettingsRepository(context: Context) {
             secretViewKey = preferences[PreferencesKeys.SECRET_VIEW_KEY] ?: "",
             majorIndex = preferences[PreferencesKeys.MAJOR_INDEX] ?: "1",
             maxMinorIndex = preferences[PreferencesKeys.MAX_MINOR_INDEX] ?: "0",
-            restaurantName = preferences[PreferencesKeys.RESTAURANT_NAME] ?: ""
+            restaurantName = preferences[PreferencesKeys.RESTAURANT_NAME] ?: "",
+            pin = preferences[PreferencesKeys.PIN] ?: "" // Added PIN
         )
     }
 
@@ -61,6 +64,7 @@ class SettingsRepository(context: Context) {
             preferences[PreferencesKeys.MAJOR_INDEX] = settings.majorIndex
             preferences[PreferencesKeys.MAX_MINOR_INDEX] = settings.maxMinorIndex
             preferences[PreferencesKeys.RESTAURANT_NAME] = settings.restaurantName
+            preferences[PreferencesKeys.PIN] = settings.pin // Added PIN
         }
     }
 }

@@ -24,7 +24,19 @@ import net.glxn.qrgen.android.QRCode
 
 @Composable
 fun PaymentScreen(navController: NavController, amount: String, settingsViewModel: SettingsViewModel) {
-    val settings by settingsViewModel.settingsFlow.collectAsState(initial = AppSettings("",false,"","","","","",""))
+    val settings by settingsViewModel.settingsFlow.collectAsState(
+        initial = AppSettings(
+            currency = "USD",
+            tipsEnabled = false,
+            moneroServerUrl = "",
+            moneroAddress = "",
+            secretViewKey = "",
+            majorIndex = "1",
+            maxMinorIndex = "0",
+            restaurantName = "",
+            pin = ""
+        )
+    )
     val moneroAddress = if (settings.moneroAddress.isNotEmpty()) settings.moneroAddress else "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
     val moneroUri = "monero:$moneroAddress?tx_amount=$amount"
     val qrCodeBitmap = QRCode.from(moneroUri).withSize(1024, 1024).bitmap()

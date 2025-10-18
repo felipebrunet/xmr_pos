@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
-    val settings by viewModel.settingsFlow.collectAsState(initial = AppSettings("",false,"","","","","",""))
+    val settings by viewModel.settingsFlow.collectAsState(initial = AppSettings("USD",false,"","","","1","0", "", ""))
     val scope = rememberCoroutineScope()
 
     var currency by remember(settings.currency) { mutableStateOf(settings.currency) }
@@ -34,6 +34,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
     var majorIndex by remember(settings.majorIndex) { mutableStateOf(settings.majorIndex) }
     var maxMinorIndex by remember(settings.maxMinorIndex) { mutableStateOf(settings.maxMinorIndex) }
     var restaurantName by remember(settings.restaurantName) { mutableStateOf(settings.restaurantName) }
+    val hasPin = settings.pin.isNotEmpty()
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF8E1)) {
         Column(
@@ -49,7 +50,18 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
             SettingRow(stringResource(R.string.settings_currency_label)) {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                    TextField(value = currency, onValueChange = {}, readOnly = true, trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }, modifier = Modifier.menuAnchor())
+                    TextField(
+                        value = currency, 
+                        onValueChange = {}, 
+                        readOnly = true, 
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }, 
+                        modifier = Modifier.menuAnchor().width(120.dp),
+                        colors = ExposedDropdownMenuDefaults.textFieldColors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            disabledContainerColor = Color.White,
+                        )
+                    )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         DropdownMenuItem(text = { Text("USD") }, onClick = { currency = "USD"; expanded = false })
                         DropdownMenuItem(text = { Text("EUR") }, onClick = { currency = "EUR"; expanded = false })
@@ -71,13 +83,19 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
                     Switch(checked = tipsEnabled, onCheckedChange = { tipsEnabled = it })
                 }
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = { 
+                        if (hasPin) {
+                            viewModel.savePin("")
+                        } else {
+                            navController.navigate("pin")
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFE53935), // Material Red 600
                         contentColor = Color.White
                     )
                 ) {
-                    Text(stringResource(R.string.delete_pin_button))
+                    Text(stringResource(if (hasPin) R.string.delete_pin_button else R.string.set_pin_button))
                 }
             }
 
@@ -94,7 +112,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
                 Button(onClick = { navController.popBackStack() }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)), modifier = Modifier.weight(1f).padding(end = 8.dp)) { Text(stringResource(R.string.go_back_button)) }
                 Button(onClick = { 
                     scope.launch {
-                        viewModel.saveSettings(AppSettings(currency, tipsEnabled, moneroServerUrl, moneroAddress, secretViewKey, majorIndex, maxMinorIndex, restaurantName))
+                        val newSettings = AppSettings(currency, tipsEnabled, moneroServerUrl, moneroAddress, secretViewKey, majorIndex, maxMinorIndex, restaurantName, settings.pin)
+                        viewModel.saveSettings(newSettings)
                         navController.popBackStack()
                     }
                  }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)), modifier = Modifier.weight(1f).padding(start = 8.dp)) { Text(stringResource(R.string.save_button)) }
@@ -127,6 +146,11 @@ fun SettingTextField(label: String, value: String, onValueChange: (String) -> Un
             .fillMaxWidth()
             .padding(vertical = 4.dp), // Reduced padding
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = true
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            disabledContainerColor = Color.White
+        )
     )
 }

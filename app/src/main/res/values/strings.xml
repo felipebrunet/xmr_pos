@@ -11,6 +11,7 @@
     <string name="settings_currency_label">Currency:</string>
     <string name="settings_tips_label">Tips:</string>
     <string name="delete_pin_button">DELETE PIN</string>
+    <string name="set_pin_button">SET PIN</string>
     <string name="settings_server_url_label">Monero server URL:</string>
     <string name="settings_base_address_label">Monero base address:</string>
     <string name="settings_view_key_label">Monero secret view key:</string>
