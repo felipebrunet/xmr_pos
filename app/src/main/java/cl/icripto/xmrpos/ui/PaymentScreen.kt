@@ -51,7 +51,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     baseAddress = settings.moneroAddress,
                     secretVk = settings.secretViewKey,
                     major = settings.majorIndex.toIntOrNull() ?: 1,
-                    minor = 1 // Hardcoded for now
+                    minor = 2 // Hardcoded for now
                 )
                 Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
