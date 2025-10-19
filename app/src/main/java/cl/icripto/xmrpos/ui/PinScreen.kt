@@ -67,9 +67,9 @@ fun PinScreen(navController: NavController, viewModel: SettingsViewModel) {
                     Text(stringResource(R.string.back_button))
                 }
                 Button(
-                    onClick = { 
+                    onClick = {
                         viewModel.savePin(pin)
-                        navController.popBackStack() 
+                        navController.popBackStack()
                     },
                     enabled = pin.length == 4,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),

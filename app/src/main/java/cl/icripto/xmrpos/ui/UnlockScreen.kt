@@ -29,8 +29,8 @@ fun UnlockScreen(navController: NavController, viewModel: SettingsViewModel) {
     LaunchedEffect(enteredPin) {
         if (enteredPin.length == 4) {
             if (enteredPin == settings.pin) {
-                navController.navigate("settings") { 
-                    popUpTo("unlock") { inclusive = true } 
+                navController.navigate("settings") {
+                    popUpTo("unlock") { inclusive = true }
                 }
             } else {
                 coroutineScope.launch {

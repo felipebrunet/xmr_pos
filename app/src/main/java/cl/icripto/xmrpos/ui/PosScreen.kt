@@ -72,7 +72,7 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Button(
-                    onClick = { 
+                    onClick = {
                         if (settings.pin.isEmpty()) {
                             navController.navigate("settings")
                         } else {
@@ -151,7 +151,7 @@ fun Numpad(onAmountChange: (String) -> Unit, currentAmount: String) {
                     }
                     onAmountChange(newAmount)
                 },
-                 modifier = Modifier.height(80.dp)
+                modifier = Modifier.height(80.dp)
             ) {
                 Text(
                     text = if (buttonText == "DELETE") stringResource(R.string.numpad_delete) else buttonText,

@@ -63,10 +63,10 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                     TextField(
-                        value = currency, 
-                        onValueChange = {}, 
-                        readOnly = true, 
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }, 
+                        value = currency,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier.menuAnchor().width(120.dp),
                         colors = ExposedDropdownMenuDefaults.textFieldColors(
                             focusedContainerColor = Color.White,
@@ -95,7 +95,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
                     Switch(checked = tipsEnabled, onCheckedChange = { tipsEnabled = it })
                 }
                 Button(
-                    onClick = { 
+                    onClick = {
                         if (hasPin) {
                             viewModel.savePin("")
                         } else {
@@ -122,13 +122,13 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(onClick = { navController.popBackStack() }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)), modifier = Modifier.weight(1f).padding(end = 8.dp)) { Text(stringResource(R.string.go_back_button)) }
-                Button(onClick = { 
+                Button(onClick = {
                     scope.launch {
                         val newSettings = AppSettings(currency, tipsEnabled, moneroServerUrl, moneroAddress, secretViewKey, majorIndex, maxMinorIndex, restaurantName, settings.pin)
                         viewModel.saveSettings(newSettings)
                         navController.popBackStack()
                     }
-                 }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)), modifier = Modifier.weight(1f).padding(start = 8.dp)) { Text(stringResource(R.string.save_button)) }
+                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)), modifier = Modifier.weight(1f).padding(start = 8.dp)) { Text(stringResource(R.string.save_button)) }
             }
         }
     }

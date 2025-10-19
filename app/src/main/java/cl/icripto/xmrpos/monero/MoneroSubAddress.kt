@@ -1,3 +1,4 @@
+
 package cl.icripto.xmrpos.monero
 
 import cl.icripto.xmrpos.Base58.decodeBase58
