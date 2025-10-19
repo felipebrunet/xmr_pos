@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cl.icripto.xmrpos.data.MoneroPriceDataSource
 import cl.icripto.xmrpos.data.SettingsRepository
 import cl.icripto.xmrpos.ui.PaymentScreen
 import cl.icripto.xmrpos.ui.PinScreen
@@ -30,8 +31,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             XmrPosTheme {
                 val settingsRepository = SettingsRepository(applicationContext)
+                val moneroPriceDataSource = MoneroPriceDataSource()
                 val settingsViewModel: SettingsViewModel = viewModel(
-                    factory = SettingsViewModelFactory(settingsRepository)
+                    factory = SettingsViewModelFactory(settingsRepository, moneroPriceDataSource)
                 )
                 val navController = rememberNavController()
 
@@ -61,7 +63,9 @@ class MainActivity : ComponentActivity() {
 fun DefaultPreview() {
     XmrPosTheme {
         val context = LocalContext.current
-        val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(SettingsRepository(context)))
+        val settingsRepository = SettingsRepository(context)
+        val moneroPriceDataSource = MoneroPriceDataSource()
+        val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(settingsRepository, moneroPriceDataSource))
         PosScreen(rememberNavController(), settingsViewModel)
     }
 }
