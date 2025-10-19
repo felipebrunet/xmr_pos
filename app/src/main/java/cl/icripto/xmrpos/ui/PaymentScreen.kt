@@ -1,18 +1,14 @@
 package cl.icripto.xmrpos.ui
 
+import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +23,42 @@ import cl.icripto.xmrpos.R
 import cl.icripto.xmrpos.data.AppSettings
 import cl.icripto.xmrpos.monero.MoneroSubaddress
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.android.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import net.glxn.qrgen.android.QRCode
+
+@SuppressLint("UnsafeOptInUsageError")
+@Serializable
+data class DateTimeResponse(
+    val datetime: String
+)
+
+private val httpClient = HttpClient(Android) {
+    install(ContentNegotiation) {
+        json(Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        })
+    }
+}
+
+private suspend fun fetchCurrentDateTime(): String {
+    Log.d("PaymentScreen", "Attempting to fetch current date and time...")
+    return try {
+        val response: DateTimeResponse = httpClient.get("https://aisenseapi.com/services/v1/datetime").body()
+        Log.d("PaymentScreen", "Successfully fetched date: ${response.datetime}")
+        "Date: ${response.datetime}"
+    } catch (e: Exception) {
+        Log.e("PaymentScreen", "Error fetching date: ${e.message}", e)
+        "Failed to fetch date: ${e.message ?: "Unknown error"}"
+    }
+}
 
 @Composable
 fun PaymentScreen(navController: NavController, amount: String, settingsViewModel: SettingsViewModel) {
@@ -47,6 +78,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     val context = LocalContext.current
 
     var derivedSubaddress by remember { mutableStateOf("") }
+    var currentDateTime by remember { mutableStateOf("Fetching date...") }
 
     // Derive the subaddress when the screen is shown
     LaunchedEffect(settings) {
@@ -66,6 +98,12 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         }
     }
 
+    LaunchedEffect(Unit) {
+        Log.d("PaymentScreen", "PaymentScreen LaunchedEffect(Unit) is running.")
+        currentDateTime = fetchCurrentDateTime()
+    }
+
+
     val moneroAddressForQr = if (derivedSubaddress.isNotEmpty()) derivedSubaddress else "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
     val moneroUri = "monero:$moneroAddressForQr?tx_amount=$amount"
     val qrCodeBitmap = QRCode.from(moneroUri).withSize(1024, 1024).bitmap()
@@ -73,6 +111,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF8E1)) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(stringResource(R.string.payment_screen_amount_to_pay, amount, settings.currency), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(currentDateTime, fontSize = 16.sp, fontWeight = FontWeight.Normal)
             Spacer(modifier = Modifier.height(32.dp))
             Image(bitmap = qrCodeBitmap.asImageBitmap(), contentDescription = stringResource(R.string.payment_screen_qr_code_description), modifier = Modifier.size(250.dp))
             Spacer(modifier = Modifier.height(32.dp))
