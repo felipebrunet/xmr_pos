@@ -10,6 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +46,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     )
     val context = LocalContext.current
 
+    var derivedSubaddress by remember { mutableStateOf("") }
+
     // Derive the subaddress when the screen is shown
     LaunchedEffect(settings) {
         if (settings.moneroAddress.isNotEmpty() && settings.secretViewKey.isNotEmpty()) {
@@ -53,6 +58,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     major = settings.majorIndex.toIntOrNull() ?: 1,
                     minor = 2 // Hardcoded for now
                 )
+                derivedSubaddress = subaddress
                 Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
                 Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
@@ -60,8 +66,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         }
     }
 
-    val moneroAddress = if (settings.moneroAddress.isNotEmpty()) settings.moneroAddress else "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
-    val moneroUri = "monero:$moneroAddress?tx_amount=$amount"
+    val moneroAddressForQr = if (derivedSubaddress.isNotEmpty()) derivedSubaddress else "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
+    val moneroUri = "monero:$moneroAddressForQr?tx_amount=$amount"
     val qrCodeBitmap = QRCode.from(moneroUri).withSize(1024, 1024).bitmap()
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF8E1)) {
