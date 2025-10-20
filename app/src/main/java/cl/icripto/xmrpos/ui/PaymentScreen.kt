@@ -32,15 +32,15 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.glxn.qrgen.android.QRCode
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import java.math.BigDecimal
+import java.math.RoundingMode
 
-@SuppressLint("UnsafeOptInUsageError")
 @Serializable
-data class TodoResponse(
-    val userId: Int,
-    val id: Int,
-    val title: String,
-    val completed: Boolean
-)
+data class PriceResponse(val monero: Map<String, Double>)
 
 private val httpClient = HttpClient(Android) {
     install(ContentNegotiation) {
@@ -51,15 +51,16 @@ private val httpClient = HttpClient(Android) {
     }
 }
 
-private suspend fun fetchTodo(): String {
-    Log.d("PaymentScreen", "Attempting to fetch todo...")
+private suspend fun fetchXmrPrice(currency: String): Double? {
+    Log.d("PaymentScreen", "Attempting to fetch XMR price...")
     return try {
-        val response: TodoResponse = httpClient.get("https://jsonplaceholder.typicode.com/todos/1").body()
-        Log.d("PaymentScreen", "Successfully fetched todo: $response")
-        "Todo: ${response.title}"
+        val response: JsonObject = httpClient.get("https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=${currency.lowercase()}").body()
+        val price = response["monero"]?.jsonObject?.get(currency.lowercase())?.jsonPrimitive?.double
+        Log.d("PaymentScreen", "Successfully fetched XMR price: $price")
+        price
     } catch (e: Exception) {
-        Log.e("PaymentScreen", "Error fetching todo: ${e.message}", e)
-        "Failed to fetch todo: ${e.message ?: "Unknown error"}"
+        Log.e("PaymentScreen", "Error fetching XMR price: ${e.message}", e)
+        null
     }
 }
 
@@ -81,7 +82,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     val context = LocalContext.current
 
     var derivedSubaddress by remember { mutableStateOf("") }
-    var todoText by remember { mutableStateOf("Fetching todo...") }
+    var xmrAmount by remember { mutableStateOf<String?>(null) }
 
     // Derive the subaddress when the screen is shown
     LaunchedEffect(settings) {
@@ -101,21 +102,34 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, amount, settings.currency) {
         Log.d("PaymentScreen", "PaymentScreen LaunchedEffect(Unit) is running.")
-        todoText = fetchTodo()
+        val price = fetchXmrPrice(settings.currency)
+        if (price != null) {
+            val amountAsDouble = amount.toDoubleOrNull()
+            if (amountAsDouble != null) {
+                val calculatedXmrAmount = amountAsDouble / price
+                xmrAmount = BigDecimal(calculatedXmrAmount).setScale(12, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+            }
+        }
     }
 
 
     val moneroAddressForQr = if (derivedSubaddress.isNotEmpty()) derivedSubaddress else "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
-    val moneroUri = "monero:$moneroAddressForQr?tx_amount=$amount"
+    val moneroUri = if (xmrAmount != null) {
+        "monero:$moneroAddressForQr?tx_amount=$xmrAmount"
+    } else {
+        "monero:$moneroAddressForQr"
+    }
     val qrCodeBitmap = QRCode.from(moneroUri).withSize(1024, 1024).bitmap()
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF8E1)) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(stringResource(R.string.payment_screen_amount_to_pay, amount, settings.currency), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(todoText, fontSize = 16.sp, fontWeight = FontWeight.Normal)
+            xmrAmount?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("XMR: $it", fontSize = 16.sp, fontWeight = FontWeight.Normal)
+            }
             Spacer(modifier = Modifier.height(32.dp))
             Image(bitmap = qrCodeBitmap.asImageBitmap(), contentDescription = stringResource(R.string.payment_screen_qr_code_description), modifier = Modifier.size(250.dp))
             Spacer(modifier = Modifier.height(32.dp))

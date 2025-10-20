@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -87,7 +88,20 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
                 Button(onClick = { /*TODO*/ }) { Text(settings.currency) }
             }
             Spacer(modifier = Modifier.height(24.dp))
-            Numpad(onAmountChange = { newAmount -> amount = newAmount }, currentAmount = amount)
+            Numpad(onKeyPress = { buttonText ->
+                amount = when (buttonText) {
+                    "DELETE" -> if (amount.isNotEmpty()) amount.dropLast(1) else ""
+                    "." -> {
+                        if (amount.isEmpty()) "0."
+                        else if (!amount.contains(".")) amount + "."
+                        else amount
+                    }
+                    else -> {
+                        if (amount == "0") buttonText
+                        else amount + buttonText
+                    }
+                }
+            })
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
@@ -129,7 +143,7 @@ fun TipDialog(onDismiss: () -> Unit, onTipSelected: (BigDecimal) -> Unit) {
 }
 
 @Composable
-fun Numpad(onAmountChange: (String) -> Unit, currentAmount: String) {
+fun Numpad(onKeyPress: (String) -> Unit) {
     val buttons = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "DELETE")
 
     LazyVerticalGrid(
@@ -140,17 +154,9 @@ fun Numpad(onAmountChange: (String) -> Unit, currentAmount: String) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        items(buttons.size) { index ->
-            val buttonText = buttons[index]
+        items(buttons) { buttonText ->
             TextButton(
-                onClick = {
-                    val newAmount = when (buttonText) {
-                        "DELETE" -> if (currentAmount.isNotEmpty()) currentAmount.dropLast(1) else ""
-                        "." -> if (currentAmount.isNotEmpty() && !currentAmount.contains(".")) currentAmount + "." else currentAmount
-                        else -> currentAmount + buttonText
-                    }
-                    onAmountChange(newAmount)
-                },
+                onClick = { onKeyPress(buttonText) },
                 modifier = Modifier.height(80.dp)
             ) {
                 Text(
