@@ -35,8 +35,11 @@ import net.glxn.qrgen.android.QRCode
 
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
-data class DateTimeResponse(
-    val datetime: String
+data class TodoResponse(
+    val userId: Int,
+    val id: Int,
+    val title: String,
+    val completed: Boolean
 )
 
 private val httpClient = HttpClient(Android) {
@@ -48,15 +51,15 @@ private val httpClient = HttpClient(Android) {
     }
 }
 
-private suspend fun fetchCurrentDateTime(): String {
-    Log.d("PaymentScreen", "Attempting to fetch current date and time...")
+private suspend fun fetchTodo(): String {
+    Log.d("PaymentScreen", "Attempting to fetch todo...")
     return try {
-        val response: DateTimeResponse = httpClient.get("https://aisenseapi.com/services/v1/datetime").body()
-        Log.d("PaymentScreen", "Successfully fetched date: ${response.datetime}")
-        "Date: ${response.datetime}"
+        val response: TodoResponse = httpClient.get("https://jsonplaceholder.typicode.com/todos/1").body()
+        Log.d("PaymentScreen", "Successfully fetched todo: $response")
+        "Todo: ${response.title}"
     } catch (e: Exception) {
-        Log.e("PaymentScreen", "Error fetching date: ${e.message}", e)
-        "Failed to fetch date: ${e.message ?: "Unknown error"}"
+        Log.e("PaymentScreen", "Error fetching todo: ${e.message}", e)
+        "Failed to fetch todo: ${e.message ?: "Unknown error"}"
     }
 }
 
@@ -78,7 +81,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     val context = LocalContext.current
 
     var derivedSubaddress by remember { mutableStateOf("") }
-    var currentDateTime by remember { mutableStateOf("Fetching date...") }
+    var todoText by remember { mutableStateOf("Fetching todo...") }
 
     // Derive the subaddress when the screen is shown
     LaunchedEffect(settings) {
@@ -100,7 +103,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
 
     LaunchedEffect(Unit) {
         Log.d("PaymentScreen", "PaymentScreen LaunchedEffect(Unit) is running.")
-        currentDateTime = fetchCurrentDateTime()
+        todoText = fetchTodo()
     }
 
 
@@ -112,7 +115,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(stringResource(R.string.payment_screen_amount_to_pay, amount, settings.currency), fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(currentDateTime, fontSize = 16.sp, fontWeight = FontWeight.Normal)
+            Text(todoText, fontSize = 16.sp, fontWeight = FontWeight.Normal)
             Spacer(modifier = Modifier.height(32.dp))
             Image(bitmap = qrCodeBitmap.asImageBitmap(), contentDescription = stringResource(R.string.payment_screen_qr_code_description), modifier = Modifier.size(250.dp))
             Spacer(modifier = Modifier.height(32.dp))
