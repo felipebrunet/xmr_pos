@@ -83,7 +83,7 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575))
                 ) { Text(stringResource(R.string.settings_button)) }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = if (amount.isEmpty()) "0" else amount, fontSize = 32.sp, modifier = Modifier.weight(1f).border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)).padding(vertical = 8.dp), textAlign = TextAlign.Center)
+                Text(text = amount.ifEmpty { "0" }, fontSize = 32.sp, modifier = Modifier.weight(1f).border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)).padding(vertical = 8.dp), textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(onClick = { /*TODO*/ }) { Text(settings.currency) }
             }
@@ -93,7 +93,7 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
                     "DELETE" -> if (amount.isNotEmpty()) amount.dropLast(1) else ""
                     "." -> {
                         if (amount.isEmpty()) "0."
-                        else if (!amount.contains(".")) amount + "."
+                        else if (!amount.contains(".")) "$amount."
                         else amount
                     }
                     else -> {
@@ -108,7 +108,7 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
                     if (settings.tipsEnabled) {
                         showTipDialog = true
                     } else {
-                        val finalAmount = if (amount.isEmpty()) "0" else amount
+                        val finalAmount = amount.ifEmpty { "0" }
                         navController.navigate("payment/$finalAmount")
                     }
                 },

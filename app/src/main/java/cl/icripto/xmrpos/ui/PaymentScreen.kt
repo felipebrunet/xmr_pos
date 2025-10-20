@@ -1,14 +1,26 @@
 package cl.icripto.xmrpos.ui
 
-import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,24 +35,20 @@ import cl.icripto.xmrpos.R
 import cl.icripto.xmrpos.data.AppSettings
 import cl.icripto.xmrpos.monero.MoneroSubaddress
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.android.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.Serializable
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import net.glxn.qrgen.android.QRCode
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import net.glxn.qrgen.android.QRCode
 import java.math.BigDecimal
 import java.math.RoundingMode
-
-@Serializable
-data class PriceResponse(val monero: Map<String, Double>)
 
 private val httpClient = HttpClient(Android) {
     install(ContentNegotiation) {
@@ -115,7 +123,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     }
 
 
-    val moneroAddressForQr = if (derivedSubaddress.isNotEmpty()) derivedSubaddress else "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
+    val moneroAddressForQr = derivedSubaddress.ifEmpty { "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A" }
     val moneroUri = if (xmrAmount != null) {
         "monero:$moneroAddressForQr?tx_amount=$xmrAmount"
     } else {
