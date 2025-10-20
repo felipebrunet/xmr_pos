@@ -103,7 +103,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     minor = 2 // Hardcoded for now
                 )
                 derivedSubaddress = subaddress
-                Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
+                // Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
                 Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
