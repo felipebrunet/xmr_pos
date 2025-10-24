@@ -1,5 +1,6 @@
 package cl.icripto.xmrpos.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,7 +23,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import cl.icripto.xmrpos.R
 import cl.icripto.xmrpos.data.AppSettings
+import cl.icripto.xmrpos.network.testServerUrl
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -42,6 +46,8 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
         )
     )
     var showTipDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     if (showTipDialog) {
         TipDialog(
@@ -50,7 +56,13 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
                 val originalAmount = amount.toBigDecimalOrNull() ?: BigDecimal.ZERO
                 val tip = originalAmount.multiply(tipPercentage)
                 val finalAmount = originalAmount.add(tip).setScale(2, RoundingMode.HALF_UP)
-                navController.navigate("payment/${finalAmount.toPlainString()}")
+                scope.launch {
+                    if (testServerUrl(settings.moneroServerUrl)) {
+                        navController.navigate("payment/${finalAmount.toPlainString()}")
+                    } else {
+                        Toast.makeText(context, "Server is unavailable", Toast.LENGTH_SHORT).show()
+                    }
+                }
                 showTipDialog = false
             }
         )
@@ -105,11 +117,17 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    if (settings.tipsEnabled) {
-                        showTipDialog = true
-                    } else {
-                        val finalAmount = amount.ifEmpty { "0" }
-                        navController.navigate("payment/$finalAmount")
+                    scope.launch {
+                        if (testServerUrl(settings.moneroServerUrl)) {
+                            if (settings.tipsEnabled) {
+                                showTipDialog = true
+                            } else {
+                                val finalAmount = amount.ifEmpty { "0" }
+                                navController.navigate("payment/$finalAmount")
+                            }
+                        } else {
+                            Toast.makeText(context, "Server is unavailable", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),

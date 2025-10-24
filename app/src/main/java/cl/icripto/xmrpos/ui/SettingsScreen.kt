@@ -1,6 +1,5 @@
 package cl.icripto.xmrpos.ui
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,33 +19,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import cl.icripto.xmrpos.R
 import cl.icripto.xmrpos.data.AppSettings
+import cl.icripto.xmrpos.network.testServerUrl
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.request.get
 import kotlinx.coroutines.launch
-
-private suspend fun testServerUrl(url: String): Boolean {
-    if (url.isBlank()) {
-        return false
-    }
-    return try {
-        val client = HttpClient(Android) {
-            install(HttpTimeout) {
-                requestTimeoutMillis = 2500
-                connectTimeoutMillis = 2500
-                socketTimeoutMillis = 2500
-            }
-        }
-        val testUrl = url.removeSuffix("/")
-        val response = client.get("$testUrl/get_info")
-        response.status.value == 200
-    } catch (e: Exception) {
-        Log.e("SettingsScreen", "Error testing server URL: ${e.message}", e)
-        false
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
