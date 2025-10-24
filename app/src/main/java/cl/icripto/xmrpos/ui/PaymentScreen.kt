@@ -41,6 +41,9 @@ import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.delay
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
@@ -59,6 +62,12 @@ private val httpClient = HttpClient(Android) {
     }
 }
 
+@Serializable
+data class MempoolHashesResponse(
+    @SerialName("tx_hashes")
+    val txHashes: List<String> = emptyList()
+)
+
 private suspend fun fetchXmrPrice(currency: String): Double? {
     Log.d("PaymentScreen", "Attempting to fetch XMR price...")
     return try {
@@ -68,6 +77,19 @@ private suspend fun fetchXmrPrice(currency: String): Double? {
         price
     } catch (e: Exception) {
         Log.e("PaymentScreen", "Error fetching XMR price: ${e.message}", e)
+        null
+    }
+}
+
+private suspend fun fetchMempoolHashes(serverUrl: String): MempoolHashesResponse? {
+    Log.d("PaymentScreen", "Attempting to fetch mempool hashes...")
+    val url = serverUrl.removeSuffix("/")
+    return try {
+        val response: MempoolHashesResponse = httpClient.get("$url/get_transaction_pool_hashes").body()
+        Log.d("PaymentScreen", "Successfully fetched mempool hashes")
+        response
+    } catch (e: Exception) {
+        Log.e("PaymentScreen", "Error fetching mempool hashes: ${e.message}", e)
         null
     }
 }
@@ -122,6 +144,13 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         }
     }
 
+    LaunchedEffect(Unit) {
+        delay(3000)
+        val mempoolHashesResponse = fetchMempoolHashes(settings.moneroServerUrl)
+        if (mempoolHashesResponse != null && mempoolHashesResponse.txHashes.isNotEmpty()) {
+            Toast.makeText(context, "First hash: ${mempoolHashesResponse.txHashes.first()}", Toast.LENGTH_LONG).show()
+        }
+    }
 
     val moneroAddressForQr = derivedSubaddress.ifEmpty { "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A" }
     val moneroUri = if (xmrAmount != null) {
