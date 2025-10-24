@@ -1,5 +1,7 @@
 package cl.icripto.xmrpos.ui
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -16,9 +19,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import cl.icripto.xmrpos.R
-import cl.icripto.xmrpos.viewmodel.SettingsViewModel
 import cl.icripto.xmrpos.data.AppSettings
+import cl.icripto.xmrpos.viewmodel.SettingsViewModel
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.request.get
 import kotlinx.coroutines.launch
+
+private suspend fun testServerUrl(url: String): Boolean {
+    if (url.isBlank()) {
+        return false
+    }
+    return try {
+        val client = HttpClient(Android) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 2500
+                connectTimeoutMillis = 2500
+                socketTimeoutMillis = 2500
+            }
+        }
+        val testUrl = url.removeSuffix("/")
+        val response = client.get("$testUrl/get_info")
+        response.status.value == 200
+    } catch (e: Exception) {
+        Log.e("SettingsScreen", "Error testing server URL: ${e.message}", e)
+        false
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +65,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
         )
     )
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     var currency by remember(settings.currency) { mutableStateOf(settings.currency) }
     var tipsEnabled by remember(settings.tipsEnabled) { mutableStateOf(settings.tipsEnabled) }
@@ -111,7 +140,37 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
                 }
             }
 
-            SettingTextField(label = stringResource(R.string.settings_server_url_label), value = moneroServerUrl, onValueChange = { moneroServerUrl = it })
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                OutlinedTextField(
+                    value = moneroServerUrl,
+                    onValueChange = { moneroServerUrl = it },
+                    label = { Text(stringResource(R.string.settings_server_url_label)) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        disabledContainerColor = Color.White
+                    )
+                )
+                Button(onClick = {
+                    scope.launch {
+                        val isSuccess = testServerUrl(moneroServerUrl)
+                        val message = if (isSuccess) "Server Ok" else "Server unavailable"
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text("Test")
+                }
+            }
+
             SettingTextField(label = stringResource(R.string.settings_base_address_label), value = moneroAddress, onValueChange = { moneroAddress = it })
             SettingTextField(label = stringResource(R.string.settings_view_key_label), value = secretViewKey, onValueChange = { secretViewKey = it })
             SettingTextField(label = stringResource(R.string.settings_major_index_label), value = majorIndex, onValueChange = { majorIndex = it }, keyboardType = KeyboardType.Number)
