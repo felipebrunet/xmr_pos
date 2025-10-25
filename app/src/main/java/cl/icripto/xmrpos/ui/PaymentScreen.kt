@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,7 +40,6 @@ import cl.icripto.xmrpos.monero.isTxContainingPayment
 import cl.icripto.xmrpos.monero.verifyAmount
 import cl.icripto.xmrpos.network.fetchFirstTransactionDetails
 import cl.icripto.xmrpos.network.fetchMempoolHashes
-// import cl.icripto.xmrpos.network.fetchMempoolHashes
 import cl.icripto.xmrpos.network.getTxPublicKeyFromExtra
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
 import io.ktor.client.HttpClient
@@ -100,6 +100,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     var derivedSubaddress by remember { mutableStateOf("") }
     var xmrAmount by remember { mutableStateOf<String?>(null) }
     var publicSpendKey by remember { mutableStateOf<String?>(null) }
+    var paymentSuccess by remember { mutableStateOf(false) }
 
     // Derive the subaddress when the screen is shown
     LaunchedEffect(settings) {
@@ -130,7 +131,6 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
             val amountAsDouble = amount.toDoubleOrNull()
             if (amountAsDouble != null) {
                 val calculatedXmrAmount = amountAsDouble / price
-//                xmrAmount = 0.06881
 
                 xmrAmount = BigDecimal(calculatedXmrAmount).setScale(12, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
             }
@@ -168,8 +168,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     )
                     Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
 
-                    verifyAmount(settings.secretViewKey, publicSpendKey!!, amounts[index], index, 0.06881.toDouble())
-//                    verifyAmount(settings.secretViewKey, publicSpendKey!!, amounts[index], index, xmrAmount!!.toDouble())
+                    paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, 0.06881.toDouble())
+//                    paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, xmrAmount!!.toDouble())
                 } else {
                     Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey or publicSpendKey")
                 }
@@ -189,13 +189,19 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF8E1)) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(stringResource(R.string.payment_screen_amount_to_pay, amount, settings.currency), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            xmrAmount?.let {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("XMR: $it", fontSize = 16.sp, fontWeight = FontWeight.Normal)
+            if (paymentSuccess) {
+                Text(stringResource(R.string.payment_received), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(32.dp))
+                Image(painter = painterResource(id = R.drawable.green_check), contentDescription = stringResource(R.string.payment_successful), modifier = Modifier.size(250.dp))
+            } else {
+                Text(stringResource(R.string.payment_screen_amount_to_pay, amount, settings.currency), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                xmrAmount?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("XMR: $it", fontSize = 16.sp, fontWeight = FontWeight.Normal)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+                Image(bitmap = qrCodeBitmap.asImageBitmap(), contentDescription = stringResource(R.string.payment_screen_qr_code_description), modifier = Modifier.size(250.dp))
             }
-            Spacer(modifier = Modifier.height(32.dp))
-            Image(bitmap = qrCodeBitmap.asImageBitmap(), contentDescription = stringResource(R.string.payment_screen_qr_code_description), modifier = Modifier.size(250.dp))
             Spacer(modifier = Modifier.height(32.dp))
             Button(onClick = { navController.popBackStack() }) { Text(stringResource(R.string.back_button)) }
         }

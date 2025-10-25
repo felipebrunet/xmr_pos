@@ -24,4 +24,5 @@
     <string name="settings_restaurant_name_label">Nombre del restaurante:</string>
     <string name="go_back_button">VOLVER</string>
     <string name="save_button">GUARDAR</string>
+    <string name="payment_received">¡Pago recibido!</string>
 </resources>

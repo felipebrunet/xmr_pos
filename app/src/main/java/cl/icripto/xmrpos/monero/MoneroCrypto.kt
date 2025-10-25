@@ -27,7 +27,7 @@ fun verifyAmount(
     ecdhAmountHex: String,
     outputIndex: Int,
     amountToReceive: Double
-) {
+): Boolean {
     val privateViewKey = privateViewKeyHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
     val txPublicKey = txPublicKeyHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
     val ecdhAmount = ecdhAmountHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
@@ -63,8 +63,10 @@ fun verifyAmount(
 
     if (amountToReceive == amountXmr) {
         Log.d("PaymentScreen", "Success!!! Amount match: $amountXmr")
+        return true
     } else {
         Log.d("PaymentScreen", "Amount does not match. Required amount: $amountToReceive, Detected amount $amountXmr")
+        return false
     }
 }
 
