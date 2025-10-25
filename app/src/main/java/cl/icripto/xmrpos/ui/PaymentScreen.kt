@@ -34,6 +34,10 @@ import androidx.navigation.NavController
 import cl.icripto.xmrpos.R
 import cl.icripto.xmrpos.data.AppSettings
 import cl.icripto.xmrpos.monero.MoneroSubaddress
+import cl.icripto.xmrpos.monero.getPublicSpendKeyHex
+import cl.icripto.xmrpos.network.fetchFirstTransactionDetails
+import cl.icripto.xmrpos.network.fetchMempoolHashes
+import cl.icripto.xmrpos.network.getTxPublicKeyFromExtra
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -42,8 +46,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.delay
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
@@ -62,12 +64,6 @@ private val httpClient = HttpClient(Android) {
     }
 }
 
-@Serializable
-data class MempoolHashesResponse(
-    @SerialName("tx_hashes")
-    val txHashes: List<String> = emptyList()
-)
-
 private suspend fun fetchXmrPrice(currency: String): Double? {
     Log.d("PaymentScreen", "Attempting to fetch XMR price...")
     return try {
@@ -77,19 +73,6 @@ private suspend fun fetchXmrPrice(currency: String): Double? {
         price
     } catch (e: Exception) {
         Log.e("PaymentScreen", "Error fetching XMR price: ${e.message}", e)
-        null
-    }
-}
-
-private suspend fun fetchMempoolHashes(serverUrl: String): MempoolHashesResponse? {
-    Log.d("PaymentScreen", "Attempting to fetch mempool hashes...")
-    val url = serverUrl.removeSuffix("/")
-    return try {
-        val response: MempoolHashesResponse = httpClient.get("$url/get_transaction_pool_hashes").body()
-        Log.d("PaymentScreen", "Successfully fetched mempool hashes")
-        response
-    } catch (e: Exception) {
-        Log.e("PaymentScreen", "Error fetching mempool hashes: ${e.message}", e)
         null
     }
 }
@@ -122,12 +105,16 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     baseAddress = settings.moneroAddress,
                     secretVk = settings.secretViewKey,
                     major = settings.majorIndex.toIntOrNull() ?: 1,
-                    minor = 2 // Hardcoded for now
+                    minor = 1 // Hardcoded for now
                 )
                 derivedSubaddress = subaddress
-                // Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
+
+                val publicSpendKey = getPublicSpendKeyHex(subaddress)
+                Log.d("PaymentScreen", "Public Spend Key: $publicSpendKey")
+
             } catch (e: Exception) {
-                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Error deriving subaddress: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -148,7 +135,19 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         delay(3000)
         val mempoolHashesResponse = fetchMempoolHashes(settings.moneroServerUrl)
         if (mempoolHashesResponse != null && mempoolHashesResponse.txHashes.isNotEmpty()) {
-            Toast.makeText(context, "First hash: ${mempoolHashesResponse.txHashes.first()}", Toast.LENGTH_LONG).show()
+            delay(500)
+            val txDetails = fetchFirstTransactionDetails(settings.moneroServerUrl, mempoolHashesResponse.txHashes)
+            if (txDetails != null) {
+                val txPublicKey = getTxPublicKeyFromExtra(txDetails.extra)
+                val keys = txDetails.vout.map { it.target.taggedKey.key }
+                val amounts = txDetails.rctSignatures.ecdhInfo.map { it.amount }
+                Log.d("PaymentScreen", "Extra: ${txDetails.extra}")
+                Log.d("PaymentScreen", "Amounts: $amounts")
+                Log.d("PaymentScreen", "Keys: $keys")
+                Log.d("PaymentScreen", "Tx Public Key: $txPublicKey")
+            } else {
+                Log.w("PaymentScreen", "Could not retrieve transaction details")
+            }
         }
     }
 
