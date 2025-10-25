@@ -67,3 +67,47 @@ fun verifyAmount(
         Log.d("MoneroCrypto", "Amount does not match. Required amount: $amountToReceive, Detected amount $amountXmr")
     }
 }
+
+/**
+ * Checks if a transaction output is directed to a specific subaddress.
+ */
+fun isTxContainingPayment(
+    privateViewKeyHex: String,
+    publicSpendKeyHex: String,
+    txPublicKeyHex: String,
+    outputPubkeysHex: List<String>
+): Pair<Boolean, Int> {
+    val privateViewKey = privateViewKeyHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+    val publicSpendKey = publicSpendKeyHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+    val txPublicKey = txPublicKeyHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+    val outputPubkeys = outputPubkeysHex.map { it.chunked(2).map { h -> h.toInt(16).toByte() }.toByteArray() }
+
+    val subaddress = MoneroSubaddress()
+
+    // 8 * private_view_key
+    val svk2 = ByteArray(32).apply { MoneroSubaddress.scalarAdd(this, privateViewKey, privateViewKey) }
+    val svk4 = ByteArray(32).apply { MoneroSubaddress.scalarAdd(this, svk2, svk2) }
+    val svk8 = ByteArray(32).apply { MoneroSubaddress.scalarAdd(this, svk4, svk4) }
+
+    // key_derivation = scalarmult(svk_8, tx_public_key)
+    val keyDerivation = ByteArray(32).apply { MoneroSubaddress.scalarmult(this, svk8, txPublicKey) }
+
+    var lastIndex = 0
+    for ((i, outputPubkey) in outputPubkeys.withIndex()) {
+        lastIndex = i
+        val indexBytes = encodeVarint(i)
+        val derivationHashInput = keyDerivation + indexBytes
+        val derivationHash = subaddress.keccakHash(derivationHashInput)
+        val derivationScalar = ByteArray(32).apply { MoneroSubaddress.scalarReduce(this, derivationHash) }
+
+        // Stealth address: Hs(derivation) * G + public_spend_key
+        val point = ByteArray(32).apply { MoneroSubaddress.scalarmultBase(this, derivationScalar) }
+        val computedStealthAddress = ByteArray(32).apply { MoneroSubaddress.edwardsAdd(this, point, publicSpendKey) }
+
+        if (computedStealthAddress.contentEquals(outputPubkey)) {
+            Log.d("MoneroCrypto", "Output key match!")
+            return Pair(true, i)
+        }
+    }
+    return Pair(false, lastIndex)
+}
