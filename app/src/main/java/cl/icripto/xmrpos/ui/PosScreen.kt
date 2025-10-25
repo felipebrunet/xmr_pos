@@ -1,8 +1,11 @@
 package cl.icripto.xmrpos.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -17,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -117,16 +121,20 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    scope.launch {
-                        if (testServerUrl(settings.moneroServerUrl)) {
-                            if (settings.tipsEnabled) {
-                                showTipDialog = true
+                    val amountBigDecimal = amount.toBigDecimalOrNull()
+                    if (amountBigDecimal != null && amountBigDecimal > BigDecimal.ZERO) {
+                        scope.launch {
+                            if (testServerUrl(settings.moneroServerUrl)) {
+                                if (settings.tipsEnabled) {
+                                    showTipDialog = true
+                                } else {
+                                    val finalAmount = amount.ifEmpty { "0" }
+                                    navController.navigate("payment/$finalAmount")
+                                }
                             } else {
-                                val finalAmount = amount.ifEmpty { "0" }
-                                navController.navigate("payment/$finalAmount")
+                                Toast.makeText(context, "Server is unavailable", Toast.LENGTH_SHORT)
+                                    .show()
                             }
-                        } else {
-                            Toast.makeText(context, "Server is unavailable", Toast.LENGTH_SHORT).show()
                         }
                     }
                 },
@@ -134,6 +142,21 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)),
                 contentPadding = PaddingValues(vertical = 16.dp)
             ) { Text(stringResource(R.string.pay_button), fontSize = 20.sp) }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("XMR POS", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            val context = LocalContext.current
+            Text(
+                text = "Open Source",
+                fontSize = 16.sp,
+                color = Color.Blue,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable {
+                    val url = "https://github.com/felipebrunet/xmr_pos"
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(url)
+                    context.startActivity(intent)
+                }
+            )
             Spacer(modifier = Modifier.weight(1f))
         }
     }

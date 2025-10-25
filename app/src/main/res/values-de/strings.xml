@@ -25,4 +25,5 @@
     <string name="go_back_button">ZURÜCK</string>
     <string name="save_button">SPEICHERN</string>
     <string name="payment_received">Zahlung erhalten!</string>
+    <string name="copy_qr_code">Copy QR Code</string>
 </resources>

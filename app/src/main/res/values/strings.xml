@@ -26,4 +26,5 @@
     <string name="save_button">SAVE</string>
     <string name="payment_successful" translatable="false">Payment Successful</string>
     <string name="payment_received">Payment received!</string>
+    <string name="copy_qr_code">Copy QR Code</string>
 </resources>

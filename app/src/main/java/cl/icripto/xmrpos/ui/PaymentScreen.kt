@@ -1,5 +1,7 @@
 package cl.icripto.xmrpos.ui
 
+import android.content.ClipboardManager
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -228,6 +230,15 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                 }
                 Spacer(modifier = Modifier.height(32.dp))
                 Image(bitmap = qrCodeBitmap.asImageBitmap(), contentDescription = stringResource(R.string.payment_screen_qr_code_description), modifier = Modifier.size(250.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = {
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = android.content.ClipData.newPlainText("Monero URI", moneroUri)
+                    clipboard.setPrimaryClip(clip)
+                    Toast.makeText(context, "QR Code data copied to clipboard", Toast.LENGTH_SHORT).show()
+                }) { 
+                    Text(stringResource(R.string.copy_qr_code)) 
+                }
             }
             Spacer(modifier = Modifier.height(32.dp))
             Button(onClick = { navController.popBackStack() }) { Text(stringResource(R.string.back_button)) }

@@ -25,4 +25,5 @@
     <string name="go_back_button">VOLVER</string>
     <string name="save_button">GUARDAR</string>
     <string name="payment_received">¡Pago recibido!</string>
+    <string name="copy_qr_code">Copiar QR</string>
 </resources>
