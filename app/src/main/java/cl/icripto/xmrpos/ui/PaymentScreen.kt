@@ -38,7 +38,7 @@ import cl.icripto.xmrpos.monero.MoneroSubaddress
 import cl.icripto.xmrpos.monero.getPublicSpendKeyHex
 import cl.icripto.xmrpos.monero.isTxContainingPayment
 import cl.icripto.xmrpos.monero.verifyAmount
-import cl.icripto.xmrpos.network.fetchFirstTransactionDetails
+import cl.icripto.xmrpos.network.fetchTransactionDetails
 import cl.icripto.xmrpos.network.fetchMempoolHashes
 import cl.icripto.xmrpos.network.getTxPublicKeyFromExtra
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
@@ -143,35 +143,34 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         if (mempoolHashesResponse != null) {
             Log.d("PaymentScreen", "Mempool hashes: $mempoolHashesResponse")
 
-            // Hardcoded transaction hash for testing
-            val testTxHash = "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721"
-            val testTxHashes = listOf(testTxHash)
+            delay(500) // This is so the server does not gets tired.
+            // val allHashes = mempoolHashesResponse.txHashes + "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721"
+            // val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, allHashes)
+            val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, mempoolHashesResponse.txHashes)
+            if (txsDetails.isNotEmpty()) {
+                for (txDetails in txsDetails) {
+                    val txPublicKey = getTxPublicKeyFromExtra(txDetails.extra)
+                    val keys = txDetails.vout.map { it.target.taggedKey.key }
+                    val amounts = txDetails.rctSignatures.ecdhInfo.map { it.amount }
+                    Log.d("PaymentScreen", "Extra: ${txDetails.extra}")
+                    Log.d("PaymentScreen", "Amounts: $amounts")
+                    Log.d("PaymentScreen", "Keys: $keys")
+                    Log.d("PaymentScreen", "Tx Public Key: $txPublicKey")
 
-            delay(500)
-            val txDetails = fetchFirstTransactionDetails(settings.moneroServerUrl, testTxHashes)
-//            val txDetails = fetchFirstTransactionDetails(settings.moneroServerUrl, mempoolHashesResponse.txHashes)
-            if (txDetails != null) {
-                val txPublicKey = getTxPublicKeyFromExtra(txDetails.extra)
-                val keys = txDetails.vout.map { it.target.taggedKey.key }
-                val amounts = txDetails.rctSignatures.ecdhInfo.map { it.amount }
-                Log.d("PaymentScreen", "Extra: ${txDetails.extra}")
-                Log.d("PaymentScreen", "Amounts: $amounts")
-                Log.d("PaymentScreen", "Keys: $keys")
-                Log.d("PaymentScreen", "Tx Public Key: $txPublicKey")
+                    if (txPublicKey != null && publicSpendKey != null) {
+                        val (match, index) = isTxContainingPayment(
+                            privateViewKeyHex = settings.secretViewKey,
+                            publicSpendKeyHex = publicSpendKey!!,
+                            txPublicKeyHex = txPublicKey,
+                            outputPubkeysHex = keys
+                        )
+                        Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
 
-                if (txPublicKey != null && publicSpendKey != null) {
-                    val (match, index) = isTxContainingPayment(
-                        privateViewKeyHex = settings.secretViewKey,
-                        publicSpendKeyHex = publicSpendKey!!,
-                        txPublicKeyHex = txPublicKey,
-                        outputPubkeysHex = keys
-                    )
-                    Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
-
-                    paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, 0.06881.toDouble())
-//                    paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, xmrAmount!!.toDouble())
-                } else {
-                    Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey or publicSpendKey")
+                        // paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, 0.06881.toDouble())
+                        paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, xmrAmount!!.toDouble())
+                    } else {
+                        Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey or publicSpendKey")
+                    }
                 }
             } else {
                 Log.w("PaymentScreen", "Could not retrieve transaction details for test hash")

@@ -103,19 +103,23 @@ suspend fun fetchMempoolHashes(serverUrl: String): MempoolHashesResponse? {
     }
 }
 
-suspend fun fetchFirstTransactionDetails(serverUrl: String, hashes: List<String>): TransactionDetails? {
-    Log.d("MoneroRpc", "Attempting to fetch transaction details...")
+suspend fun fetchTransactionDetails(serverUrl: String, hashes: List<String>): List<TransactionDetails> {
+    Log.d("MoneroRpc", "Attempting to fetch transaction details for ${hashes.size} hashes...")
     val url = serverUrl.removeSuffix("/")
+    val transactionDetailsList = mutableListOf<TransactionDetails>()
 
+    if (hashes.isEmpty()) {
+        return emptyList()
+    }
 
     val httpResponse: HttpResponse? = try {
         httpClient.post("$url/get_transactions") {
             contentType(ContentType.Application.Json)
-             setBody(TxsHashesRequest(txsHashes = hashes))
+            setBody(TxsHashesRequest(txsHashes = hashes))
         }
     } catch (e: Exception) {
         Log.e("MoneroRpc", "Error fetching transactions: ${e.message}", e)
-        return null
+        return emptyList()
     }
 
     if (httpResponse?.status?.value == 200) {
@@ -123,28 +127,30 @@ suspend fun fetchFirstTransactionDetails(serverUrl: String, hashes: List<String>
         val status = responseBody["status"]?.jsonPrimitive?.content
         if (status != "OK") {
             Log.e("MoneroRpc", "Node returned status: $status")
-            return null
+            return emptyList()
         }
 
         val txsArray = responseBody["txs"]?.jsonArray
         if (txsArray != null && txsArray.isNotEmpty()) {
-            val firstTx = txsArray.first().jsonObject
-            val asJsonString = firstTx["as_json"]?.jsonPrimitive?.content
+            val jsonParser = Json { ignoreUnknownKeys = true }
+            for (txElement in txsArray) {
+                val txObject = txElement.jsonObject
+                val asJsonString = txObject["as_json"]?.jsonPrimitive?.content
 
-            if (!asJsonString.isNullOrBlank()) {
-                return try {
-                    val jsonParser = Json { ignoreUnknownKeys = true }
-                    jsonParser.decodeFromString<TransactionDetails>(asJsonString)
-                } catch (e: Exception) {
-                    Log.e("MoneroRpc", "Error parsing transaction details: ${e.message}", e)
-                    null
+                if (!asJsonString.isNullOrBlank()) {
+                    try {
+                        val details = jsonParser.decodeFromString<TransactionDetails>(asJsonString)
+                        transactionDetailsList.add(details)
+                    } catch (e: Exception) {
+                        Log.e("MoneroRpc", "Error parsing transaction details: ${e.message}", e)
+                    }
+                } else {
+                    Log.e("MoneroRpc", "as_json field is null or blank for a transaction")
                 }
-            } else {
-                Log.e("MoneroRpc", "as_json field is null or blank")
             }
         }
     } else {
         Log.e("MoneroRpc", "Failed to get transactions: ${httpResponse?.status?.value}")
     }
-    return null
+    return transactionDetailsList
 }
