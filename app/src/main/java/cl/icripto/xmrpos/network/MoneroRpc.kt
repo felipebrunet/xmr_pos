@@ -79,6 +79,42 @@ data class TransactionDetails(
     val vout: List<Vout>
 )
 
+@Serializable
+data class JsonRpcBlockCountRequest(
+    val jsonrpc: String = "2.0",
+    val id: String = "0",
+    val method: String = "get_block_count"
+)
+
+@Serializable
+data class JsonRpcGetBlockRequest(
+    val jsonrpc: String = "2.0",
+    val id: String = "0",
+    val method: String = "get_block",
+    val params: GetBlockParams
+)
+
+@Serializable
+data class JsonRpcResponse<T>(
+    val result: T
+)
+
+@Serializable
+data class BlockCountResult(
+    val count: Long
+)
+
+@Serializable
+data class BlockResult(
+    @SerialName("tx_hashes")
+    val txHashes: List<String>? = null
+)
+
+@Serializable
+data class GetBlockParams(
+    val height: Long
+)
+
 fun getTxPublicKeyFromExtra(extra: List<Int>): String? {
     val txPubKeyTag = 1
     val pubKeyLength = 32
@@ -101,6 +137,53 @@ suspend fun fetchMempoolHashes(serverUrl: String): MempoolHashesResponse? {
         Log.e("MoneroRpc", "Error fetching mempool hashes: ${e.message}", e)
         null
     }
+}
+
+suspend fun fetchLastBlockHashes(serverUrl: String): List<String> {
+    val jsonRpcUrl = serverUrl.removeSuffix("/") + "/json_rpc"
+    val allTxHashes = mutableListOf<String>()
+
+    // 1. Get current block height
+    val height: Long
+    try {
+        val blockCountRequest = JsonRpcBlockCountRequest()
+        val response: JsonRpcResponse<BlockCountResult> = httpClient.post(jsonRpcUrl) {
+            contentType(ContentType.Application.Json)
+            setBody(blockCountRequest)
+        }.body()
+        height = response.result.count
+        Log.d("MoneroRpc", "Current block height: $height")
+    } catch (e: Exception) {
+        Log.e("MoneroRpc", "Error fetching block count: ${e.message}", e)
+        return emptyList()
+    }
+
+    // 2. Fetch last 3 blocks
+    for (i in 1..3) {
+        val blockHeight = height - i
+        if (blockHeight < 0) continue
+
+        try {
+            val getBlockParams = GetBlockParams(height = blockHeight)
+            val getBlockRequest = JsonRpcGetBlockRequest(params = getBlockParams)
+            val response: JsonRpcResponse<BlockResult> = httpClient.post(jsonRpcUrl) {
+                contentType(ContentType.Application.Json)
+                setBody(getBlockRequest)
+            }.body()
+
+            response.result.txHashes?.let {
+                if (it.isNotEmpty()) {
+                    Log.d("PaymentScreen", "Found ${it.size} transactions in block $blockHeight")
+                    allTxHashes.addAll(it)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("PaymentScreen", "Error fetching block at height $blockHeight: ${e.message}", e)
+            // Continue to next block even if one fails
+        }
+    }
+
+    return allTxHashes
 }
 
 suspend fun fetchTransactionDetails(serverUrl: String, hashes: List<String>): List<TransactionDetails> {

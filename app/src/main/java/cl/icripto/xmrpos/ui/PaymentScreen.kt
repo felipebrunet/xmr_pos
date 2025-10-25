@@ -40,6 +40,7 @@ import cl.icripto.xmrpos.monero.isTxContainingPayment
 import cl.icripto.xmrpos.monero.verifyAmount
 import cl.icripto.xmrpos.network.fetchTransactionDetails
 import cl.icripto.xmrpos.network.fetchMempoolHashes
+import cl.icripto.xmrpos.network.fetchLastBlockHashes
 import cl.icripto.xmrpos.network.getTxPublicKeyFromExtra
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
 import io.ktor.client.HttpClient
@@ -139,23 +140,23 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
 
     LaunchedEffect(Unit) {
         delay(3000)
-        val mempoolHashesResponse = fetchMempoolHashes(settings.moneroServerUrl)
-        if (mempoolHashesResponse != null) {
-            Log.d("PaymentScreen", "Mempool hashes: $mempoolHashesResponse")
+        val mempoolHashes = fetchMempoolHashes(settings.moneroServerUrl)?.txHashes ?: emptyList()
+        delay(100) // Add a small delay to avoid overwhelming the server
+//        val lastBlockHashes = fetchLastBlockHashes(settings.moneroServerUrl)
+//        val allHashes = (mempoolHashes)
+        val allHashes = (mempoolHashes + "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721").distinct()
+//        val allHashes = (mempoolHashes + lastBlockHashes + "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721").distinct()
+        Log.d("PaymentScreen", "All hashes: $allHashes")
 
-            delay(500) // This is so the server does not gets tired.
-            // val allHashes = mempoolHashesResponse.txHashes + "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721"
-            // val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, allHashes)
-            val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, mempoolHashesResponse.txHashes)
+        if (allHashes.isNotEmpty()) {
+            Log.d("PaymentScreen", "Total hashes to check: ${allHashes.size}")
+
+            val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, allHashes)
             if (txsDetails.isNotEmpty()) {
                 for (txDetails in txsDetails) {
                     val txPublicKey = getTxPublicKeyFromExtra(txDetails.extra)
                     val keys = txDetails.vout.map { it.target.taggedKey.key }
                     val amounts = txDetails.rctSignatures.ecdhInfo.map { it.amount }
-                    Log.d("PaymentScreen", "Extra: ${txDetails.extra}")
-                    Log.d("PaymentScreen", "Amounts: $amounts")
-                    Log.d("PaymentScreen", "Keys: $keys")
-                    Log.d("PaymentScreen", "Tx Public Key: $txPublicKey")
 
                     if (txPublicKey != null && publicSpendKey != null) {
                         val (match, index) = isTxContainingPayment(
@@ -164,16 +165,28 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                             txPublicKeyHex = txPublicKey,
                             outputPubkeysHex = keys
                         )
-                        Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
 
-                        // paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, 0.06881.toDouble())
-                        paymentSuccess = verifyAmount(settings.secretViewKey, txPublicKey, amounts[index], index, xmrAmount!!.toDouble())
+                        if (match) {
+                            Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
+                            paymentSuccess = verifyAmount(
+                                settings.secretViewKey, 
+                                txPublicKey, 
+                                amounts[index], 
+                                index,
+                                0.06881.toDouble()
+//                                xmrAmount!!.toDouble()
+                            )
+                            if(paymentSuccess) break
+                        }
+                        else {
+                            Log.d("PaymentScreen", "Payment not found in transaction with tx_pubkey: $txPublicKey")
+                        }
                     } else {
                         Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey or publicSpendKey")
                     }
                 }
             } else {
-                Log.w("PaymentScreen", "Could not retrieve transaction details for test hash")
+                Log.w("PaymentScreen", "Could not retrieve transaction details for any hash")
             }
         }
     }
