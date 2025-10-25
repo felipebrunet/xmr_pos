@@ -109,12 +109,21 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     LaunchedEffect(settings) {
         if (settings.moneroAddress.isNotEmpty() && settings.secretViewKey.isNotEmpty()) {
             try {
+                val sharedPref = context.getSharedPreferences("payment_prefs", Context.MODE_PRIVATE)
+                val lastMinorIndex = sharedPref.getInt("last_minor_index", 0)
+                val nextMinorIndex = lastMinorIndex + 1
+
                 val subaddress = MoneroSubaddress().getAddressFinal(
                     baseAddress = settings.moneroAddress,
                     secretVk = settings.secretViewKey,
                     major = settings.majorIndex.toInt(),
-                    minor = 1
+                    minor = nextMinorIndex
                 )
+
+                with(sharedPref.edit()) {
+                    putInt("last_minor_index", nextMinorIndex)
+                    apply()
+                }
                 derivedSubaddress = subaddress
 //                Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
 
