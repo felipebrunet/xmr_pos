@@ -1,4 +1,3 @@
-
 package cl.icripto.xmrpos.monero
 
 import cl.icripto.xmrpos.Base58.decodeBase58
@@ -52,7 +51,7 @@ class MoneroSubaddress {
         )
     }
 
-    private fun keccakHash(data: ByteArray): ByteArray {
+    fun keccakHash(data: ByteArray): ByteArray {
         val digest = KeccakDigest(256)
         digest.update(data, 0, data.size)
         val hash = ByteArray(digest.digestSize)
