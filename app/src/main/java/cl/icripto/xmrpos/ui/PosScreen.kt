@@ -122,7 +122,9 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             Button(
                 onClick = {
                     val amountBigDecimal = amount.toBigDecimalOrNull()
-                    if (amountBigDecimal != null && amountBigDecimal > BigDecimal.ZERO) {
+                    if (settings.moneroAddress.isEmpty() || settings.secretViewKey.isEmpty()) {
+                        Toast.makeText(context, "Please set Base Address and Secret View Key in settings.", Toast.LENGTH_LONG).show()
+                    } else if (amountBigDecimal != null && amountBigDecimal > BigDecimal.ZERO) {
                         scope.launch {
                             if (testServerUrl(settings.moneroServerUrl)) {
                                 if (settings.tipsEnabled) {
@@ -195,15 +197,15 @@ fun Numpad(onKeyPress: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        items(buttons) { buttonText ->
+        items(buttons) {
             TextButton(
-                onClick = { onKeyPress(buttonText) },
+                onClick = { onKeyPress(it) },
                 modifier = Modifier.height(80.dp)
             ) {
                 Text(
-                    text = if (buttonText == "DELETE") stringResource(R.string.numpad_delete) else buttonText,
+                    text = if (it == "DELETE") stringResource(R.string.numpad_delete) else it,
                     color = Color.White,
-                    fontSize = if (buttonText == "DELETE") 16.sp else 24.sp,
+                    fontSize = if (it == "DELETE") 16.sp else 24.sp,
                     softWrap = false
                 )
             }

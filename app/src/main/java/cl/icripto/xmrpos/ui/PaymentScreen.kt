@@ -137,6 +137,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
 
             } catch (e: Exception) {
                 Toast.makeText(context, "Error deriving subaddress: ${e.message}", Toast.LENGTH_LONG).show()
+                navController.popBackStack()
             }
         }
     }
