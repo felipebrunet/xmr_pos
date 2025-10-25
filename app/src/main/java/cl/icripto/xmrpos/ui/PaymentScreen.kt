@@ -114,7 +114,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     minor = 1  // Hardcoded for testing
                 )
                 derivedSubaddress = subaddress
-                Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
+//                Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
 
                 publicSpendKey = getPublicSpendKeyHex(subaddress)
                 Log.d("PaymentScreen", "Public Spend Key: $publicSpendKey")
@@ -146,61 +146,62 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     Log.e("PaymentScreen", "Invalid amount format: $amount")
                 }
             } else {
-                Toast.makeText(context, "Error fetching price for ${settings.currency}", Toast.LENGTH_LONG).show()
                 Log.e("PaymentScreen", "Error fetching price for ${settings.currency}")
             }
         }
     }
 
-    LaunchedEffect(Unit) {
-        delay(3000)
-        val mempoolHashes = fetchMempoolHashes(settings.moneroServerUrl)?.txHashes ?: emptyList()
-        delay(100) // Add a small delay to avoid overwhelming the server
-//        val lastBlockHashes = fetchLastBlockHashes(settings.moneroServerUrl)
-//        val allHashes = (mempoolHashes)
-        val allHashes = (mempoolHashes + "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721").distinct()
-//        val allHashes = (mempoolHashes + lastBlockHashes + "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721").distinct()
-        Log.d("PaymentScreen", "All hashes: $allHashes")
+    LaunchedEffect(publicSpendKey, xmrAmount) {
+        if (publicSpendKey == null || xmrAmount == null) return@LaunchedEffect
 
-        if (allHashes.isNotEmpty()) {
-            Log.d("PaymentScreen", "Total hashes to check: ${allHashes.size}")
+        while (!paymentSuccess) {
+            val mempoolHashes = fetchMempoolHashes(settings.moneroServerUrl)?.txHashes ?: emptyList()
+            delay(100) // Add a small delay to avoid overwhelming the server
+            val lastBlockHashes = fetchLastBlockHashes(settings.moneroServerUrl)
+            val allHashes = (mempoolHashes + lastBlockHashes).distinct()
+            Log.d("PaymentScreen", "All hashes: $allHashes")
 
-            val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, allHashes)
-            if (txsDetails.isNotEmpty()) {
-                for (txDetails in txsDetails) {
-                    val txPublicKey = getTxPublicKeyFromExtra(txDetails.extra)
-                    val keys = txDetails.vout.map { it.target.taggedKey.key }
-                    val amounts = txDetails.rctSignatures.ecdhInfo.map { it.amount }
+            if (allHashes.isNotEmpty()) {
+                Log.d("PaymentScreen", "Total hashes to check: ${allHashes.size}")
 
-                    if (txPublicKey != null && publicSpendKey != null) {
-                        val (match, index) = isTxContainingPayment(
-                            privateViewKeyHex = settings.secretViewKey,
-                            publicSpendKeyHex = publicSpendKey!!,
-                            txPublicKeyHex = txPublicKey,
-                            outputPubkeysHex = keys
-                        )
+                val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, allHashes)
+                if (txsDetails.isNotEmpty()) {
+                    for (txDetails in txsDetails) {
+                        val txPublicKey = getTxPublicKeyFromExtra(txDetails.extra)
+                        val keys = txDetails.vout.map { it.target.taggedKey.key }
+                        val amounts = txDetails.rctSignatures.ecdhInfo.map { it.amount }
 
-                        if (match) {
-                            Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
-                            paymentSuccess = verifyAmount(
-                                settings.secretViewKey, 
-                                txPublicKey, 
-                                amounts[index], 
-                                index,
-//                                0.06881.toDouble()
-                                xmrAmount!!.toDouble()
+                        if (txPublicKey != null) {
+                            val (match, index) = isTxContainingPayment(
+                                privateViewKeyHex = settings.secretViewKey,
+                                publicSpendKeyHex = publicSpendKey!!,
+                                txPublicKeyHex = txPublicKey,
+                                outputPubkeysHex = keys
                             )
-                            if(paymentSuccess) break
+
+                            if (match) {
+                                Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
+                                paymentSuccess = verifyAmount(
+                                    settings.secretViewKey,
+                                    txPublicKey,
+                                    amounts[index],
+                                    index,
+                                    xmrAmount!!.toDouble()
+                                )
+                                if (paymentSuccess) break
+                            } else {
+                                Log.d("PaymentScreen", "Payment not found in transaction with tx_pubkey: $txPublicKey")
+                            }
+                        } else {
+                            Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey")
                         }
-                        else {
-                            Log.d("PaymentScreen", "Payment not found in transaction with tx_pubkey: $txPublicKey")
-                        }
-                    } else {
-                        Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey or publicSpendKey")
                     }
+                } else {
+                    Log.w("PaymentScreen", "Could not retrieve transaction details for any hash")
                 }
-            } else {
-                Log.w("PaymentScreen", "Could not retrieve transaction details for any hash")
+            }
+            if (!paymentSuccess) {
+                delay(3000)
             }
         }
     }
