@@ -48,7 +48,7 @@ class SettingsRepository(context: Context) {
             moneroAddress = preferences[PreferencesKeys.MONERO_ADDRESS] ?: "",
             secretViewKey = preferences[PreferencesKeys.SECRET_VIEW_KEY] ?: "",
             majorIndex = preferences[PreferencesKeys.MAJOR_INDEX] ?: "1",
-            maxMinorIndex = preferences[PreferencesKeys.MAX_MINOR_INDEX] ?: "0",
+            maxMinorIndex = preferences[PreferencesKeys.MAX_MINOR_INDEX] ?: "10",
             restaurantName = preferences[PreferencesKeys.RESTAURANT_NAME] ?: "",
             pin = preferences[PreferencesKeys.PIN] ?: "" // Added PIN
         )

@@ -44,7 +44,7 @@ fun PosScreen(navController: NavController, settingsViewModel: SettingsViewModel
             moneroAddress = "",
             secretViewKey = "",
             majorIndex = "1",
-            maxMinorIndex = "0",
+            maxMinorIndex = "10",
             restaurantName = "",
             pin = ""
         )

@@ -34,7 +34,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
             moneroAddress = "",
             secretViewKey = "",
             majorIndex = "1",
-            maxMinorIndex = "0",
+            maxMinorIndex = "10",
             restaurantName = "",
             pin = ""
         )

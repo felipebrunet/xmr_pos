@@ -93,7 +93,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
             moneroAddress = "",
             secretViewKey = "",
             majorIndex = "1",
-            maxMinorIndex = "0",
+            maxMinorIndex = "10",
             restaurantName = "",
             pin = ""
         )
@@ -112,8 +112,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                 val subaddress = MoneroSubaddress().getAddressFinal(
                     baseAddress = settings.moneroAddress,
                     secretVk = settings.secretViewKey,
-                    major = 0, // Hardcoded for testing
-                    minor = 1  // Hardcoded for testing
+                    major = settings.majorIndex.toInt(),
+                    minor = 1
                 )
                 derivedSubaddress = subaddress
 //                Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
@@ -236,8 +236,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     val clip = android.content.ClipData.newPlainText("Monero URI", moneroUri)
                     clipboard.setPrimaryClip(clip)
                     Toast.makeText(context, "QR Code data copied to clipboard", Toast.LENGTH_SHORT).show()
-                }) { 
-                    Text(stringResource(R.string.copy_qr_code)) 
+                }) {
+                    Text(stringResource(R.string.copy_qr_code))
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
