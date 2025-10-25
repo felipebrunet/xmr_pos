@@ -106,10 +106,12 @@ suspend fun fetchMempoolHashes(serverUrl: String): MempoolHashesResponse? {
 suspend fun fetchFirstTransactionDetails(serverUrl: String, hashes: List<String>): TransactionDetails? {
     Log.d("MoneroRpc", "Attempting to fetch transaction details...")
     val url = serverUrl.removeSuffix("/")
+
+
     val httpResponse: HttpResponse? = try {
         httpClient.post("$url/get_transactions") {
             contentType(ContentType.Application.Json)
-            setBody(TxsHashesRequest(txsHashes = hashes))
+             setBody(TxsHashesRequest(txsHashes = hashes))
         }
     } catch (e: Exception) {
         Log.e("MoneroRpc", "Error fetching transactions: ${e.message}", e)

@@ -35,8 +35,11 @@ import cl.icripto.xmrpos.R
 import cl.icripto.xmrpos.data.AppSettings
 import cl.icripto.xmrpos.monero.MoneroSubaddress
 import cl.icripto.xmrpos.monero.getPublicSpendKeyHex
+import cl.icripto.xmrpos.monero.isTxContainingPayment
+import cl.icripto.xmrpos.monero.verifyAmount
 import cl.icripto.xmrpos.network.fetchFirstTransactionDetails
 import cl.icripto.xmrpos.network.fetchMempoolHashes
+// import cl.icripto.xmrpos.network.fetchMempoolHashes
 import cl.icripto.xmrpos.network.getTxPublicKeyFromExtra
 import cl.icripto.xmrpos.viewmodel.SettingsViewModel
 import io.ktor.client.HttpClient
@@ -96,6 +99,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
 
     var derivedSubaddress by remember { mutableStateOf("") }
     var xmrAmount by remember { mutableStateOf<String?>(null) }
+    var publicSpendKey by remember { mutableStateOf<String?>(null) }
 
     // Derive the subaddress when the screen is shown
     LaunchedEffect(settings) {
@@ -104,13 +108,13 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                 val subaddress = MoneroSubaddress().getAddressFinal(
                     baseAddress = settings.moneroAddress,
                     secretVk = settings.secretViewKey,
-                    major = settings.majorIndex.toIntOrNull() ?: 1,
-                    minor = 1 // Hardcoded for now
+                    major = 0, // Hardcoded for testing
+                    minor = 1  // Hardcoded for testing
                 )
                 derivedSubaddress = subaddress
                 Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
 
-                val publicSpendKey = getPublicSpendKeyHex(subaddress)
+                publicSpendKey = getPublicSpendKeyHex(subaddress)
                 Log.d("PaymentScreen", "Public Spend Key: $publicSpendKey")
 
             } catch (e: Exception) {
@@ -126,6 +130,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
             val amountAsDouble = amount.toDoubleOrNull()
             if (amountAsDouble != null) {
                 val calculatedXmrAmount = amountAsDouble / price
+//                xmrAmount = 0.06881
+
                 xmrAmount = BigDecimal(calculatedXmrAmount).setScale(12, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
             }
         }
@@ -134,9 +140,16 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
     LaunchedEffect(Unit) {
         delay(3000)
         val mempoolHashesResponse = fetchMempoolHashes(settings.moneroServerUrl)
-        if (mempoolHashesResponse != null && mempoolHashesResponse.txHashes.isNotEmpty()) {
+        if (mempoolHashesResponse != null) {
+            Log.d("PaymentScreen", "Mempool hashes: $mempoolHashesResponse")
+
+            // Hardcoded transaction hash for testing
+            val testTxHash = "e7d34036f0fc005b3295e4388b1fff3a6b74354dc2c8883ac5f35680468a3721"
+            val testTxHashes = listOf(testTxHash)
+
             delay(500)
-            val txDetails = fetchFirstTransactionDetails(settings.moneroServerUrl, mempoolHashesResponse.txHashes)
+            val txDetails = fetchFirstTransactionDetails(settings.moneroServerUrl, testTxHashes)
+//            val txDetails = fetchFirstTransactionDetails(settings.moneroServerUrl, mempoolHashesResponse.txHashes)
             if (txDetails != null) {
                 val txPublicKey = getTxPublicKeyFromExtra(txDetails.extra)
                 val keys = txDetails.vout.map { it.target.taggedKey.key }
@@ -145,8 +158,23 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                 Log.d("PaymentScreen", "Amounts: $amounts")
                 Log.d("PaymentScreen", "Keys: $keys")
                 Log.d("PaymentScreen", "Tx Public Key: $txPublicKey")
+
+                if (txPublicKey != null && publicSpendKey != null) {
+                    val (match, index) = isTxContainingPayment(
+                        privateViewKeyHex = settings.secretViewKey,
+                        publicSpendKeyHex = publicSpendKey!!,
+                        txPublicKeyHex = txPublicKey,
+                        outputPubkeysHex = keys
+                    )
+                    Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
+
+                    verifyAmount(settings.secretViewKey, publicSpendKey!!, amounts[index], index, 0.06881.toDouble())
+//                    verifyAmount(settings.secretViewKey, publicSpendKey!!, amounts[index], index, xmrAmount!!.toDouble())
+                } else {
+                    Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey or publicSpendKey")
+                }
             } else {
-                Log.w("PaymentScreen", "Could not retrieve transaction details")
+                Log.w("PaymentScreen", "Could not retrieve transaction details for test hash")
             }
         }
     }

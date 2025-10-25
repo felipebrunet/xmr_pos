@@ -62,9 +62,9 @@ fun verifyAmount(
     val amountXmr = decryptedAmount / 1_000_000_000_000.0
 
     if (amountToReceive == amountXmr) {
-        Log.d("MoneroCrypto", "Success!!! Amount match: $amountXmr")
+        Log.d("PaymentScreen", "Success!!! Amount match: $amountXmr")
     } else {
-        Log.d("MoneroCrypto", "Amount does not match. Required amount: $amountToReceive, Detected amount $amountXmr")
+        Log.d("PaymentScreen", "Amount does not match. Required amount: $amountToReceive, Detected amount $amountXmr")
     }
 }
 
