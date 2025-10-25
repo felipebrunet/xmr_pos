@@ -125,15 +125,29 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
         }
     }
 
-    LaunchedEffect(Unit, amount, settings.currency) {
-        Log.d("PaymentScreen", "PaymentScreen LaunchedEffect(Unit) is running.")
-        val price = fetchXmrPrice(settings.currency)
-        if (price != null) {
-            val amountAsDouble = amount.toDoubleOrNull()
-            if (amountAsDouble != null) {
-                val calculatedXmrAmount = amountAsDouble / price
-
-                xmrAmount = BigDecimal(calculatedXmrAmount).setScale(12, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+    LaunchedEffect(amount, settings.currency) {
+        if (settings.currency.equals("XMR", ignoreCase = true)) {
+            xmrAmount = try {
+                BigDecimal(amount).setScale(12, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+            } catch (e: NumberFormatException) {
+                Log.e("PaymentScreen", "Invalid amount format for XMR: $amount", e)
+                null
+            }
+        } else {
+            val price = fetchXmrPrice(settings.currency)
+            if (price != null) {
+                val amountBigDecimal = amount.toBigDecimalOrNull()
+                if (amountBigDecimal != null) {
+                    val priceBigDecimal = BigDecimal(price.toString())
+                    xmrAmount = amountBigDecimal.divide(priceBigDecimal, 12, RoundingMode.HALF_UP)
+                        .stripTrailingZeros()
+                        .toPlainString()
+                } else {
+                    Log.e("PaymentScreen", "Invalid amount format: $amount")
+                }
+            } else {
+                Toast.makeText(context, "Error fetching price for ${settings.currency}", Toast.LENGTH_LONG).show()
+                Log.e("PaymentScreen", "Error fetching price for ${settings.currency}")
             }
         }
     }
@@ -173,8 +187,8 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                                 txPublicKey, 
                                 amounts[index], 
                                 index,
-                                0.06881.toDouble()
-//                                xmrAmount!!.toDouble()
+//                                0.06881.toDouble()
+                                xmrAmount!!.toDouble()
                             )
                             if(paymentSuccess) break
                         }
