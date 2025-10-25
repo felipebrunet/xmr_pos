@@ -1,5 +1,6 @@
 package cl.icripto.xmrpos.ui
 
+import android.annotation.SuppressLint
 import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
@@ -83,6 +84,7 @@ private suspend fun fetchXmrPrice(currency: String): Double? {
     }
 }
 
+@SuppressLint("UseKtx")
 @Composable
 fun PaymentScreen(navController: NavController, amount: String, settingsViewModel: SettingsViewModel) {
     val settings by settingsViewModel.settingsFlow.collectAsState(
@@ -111,13 +113,16 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
             try {
                 val sharedPref = context.getSharedPreferences("payment_prefs", Context.MODE_PRIVATE)
                 val lastMinorIndex = sharedPref.getInt("last_minor_index", 0)
-                val nextMinorIndex = lastMinorIndex + 1
+                val maxMinor = settings.maxMinorIndex.toInt()
+                val nextMinorIndex = (lastMinorIndex + 1) % maxMinor
+//                Toast.makeText(context, "Next minor index: ${nextMinorIndex+1}", Toast.LENGTH_LONG).show()
+
 
                 val subaddress = MoneroSubaddress().getAddressFinal(
                     baseAddress = settings.moneroAddress,
                     secretVk = settings.secretViewKey,
                     major = settings.majorIndex.toInt(),
-                    minor = nextMinorIndex
+                    minor = nextMinorIndex+1
                 )
 
                 with(sharedPref.edit()) {
