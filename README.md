@@ -91,10 +91,7 @@ If you have questions or suggestions, reach out via GitHub Issues
 ## 💬 Donations
 
 If you find this contribution useful, consider donating:
-
-<p>
-  <img src="images/qrcode_xmr.png" alt="Monero Symbol" width="100"/>
-</p>
+![donation](https://i.imgur.com/BZAuKE9.png)
 89gjKVSYpkjMoMMpBENvJmVyXSFSLhyw81oT852wvyJygQx9aPteYGDZwLDsuqi6ED7FpHurjRuaNUWGzdYoYyuyCSamB4R
 
 
