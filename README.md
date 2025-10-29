@@ -41,7 +41,7 @@
     - Secret View Key
 4. Start accepting Monero payments instantly!
 
-> ⚠️ Your Secret View Key **never leaves your device**. Privacy is fully preserved.
+> ⚠️ Your Secret View Key and Base Address **never leave your device**. Privacy is fully preserved.
 
 ---
 
@@ -60,7 +60,7 @@
 <p>
   <img src="images/pos.png" alt="POS Screen" width="150"/>
   <img src="images/setup.png" alt="Setup Screen" width="150"/>
-  <img src="images/qrcode.png" alt="QR Code Screen" width="150"/>
+  <img src="images/qrcode2.png" alt="QR Code Screen" width="150"/>
 </p>
 
 ---
