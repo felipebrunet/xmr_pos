@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -243,6 +244,11 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                     Text("XMR: $it", fontSize = 16.sp, fontWeight = FontWeight.Normal)
                 }
                 Spacer(modifier = Modifier.height(32.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    strokeWidth = 4.dp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 Image(bitmap = qrCodeBitmap.asImageBitmap(), contentDescription = stringResource(R.string.payment_screen_qr_code_description), modifier = Modifier.size(250.dp))
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
