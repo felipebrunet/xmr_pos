@@ -85,7 +85,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## 💬 Contact
 
-If you have questions or suggestions, reach out via GitHub Issues
+If you have questions or suggestions, reach out via GitHub Issues or to email icriptochile@gmail.com
 
 ---
 
