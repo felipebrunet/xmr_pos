@@ -1,8 +1,8 @@
-set(CMAKE_ANDROID_PAGE_SIZE 16384)
+
 # Add this at the top of your CMakeLists.txt file
 cmake_minimum_required(VERSION 3.22.1)
 project(ed25519_wrapper)
-
+set(CMAKE_ANDROID_PAGE_SIZE 16384)
 # Add libsodium as an imported static library
 add_library(
         libsodium_static
