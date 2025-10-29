@@ -91,7 +91,7 @@ If you have questions or suggestions, reach out via GitHub Issues
 ## 💬 Donations
 
 If you find this contribution useful, consider donating:
-![donation](https://i.imgur.com/BZAuKE9.png)
+<img src="https://i.imgur.com/BZAuKE9.png" alt="QR Code Screen" width="100"/>
 89gjKVSYpkjMoMMpBENvJmVyXSFSLhyw81oT852wvyJygQx9aPteYGDZwLDsuqi6ED7FpHurjRuaNUWGzdYoYyuyCSamB4R
 
 
