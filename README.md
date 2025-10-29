@@ -1,6 +1,9 @@
 # 🚀 XMR POS
 
-![XMR POS Banner](images/logo1.png)
+<p>
+  <img src="images/logo1.png" alt="XMR POS logo" width="300"/>
+</p>
+
 
 **XMR POS** is a **non-custodial Monero Point-of-Sale app** that allows merchants to accept payments in Monero with full privacy and security. The app is **already available on Google Play**, providing a seamless and private crypto checkout experience.
 
@@ -20,7 +23,10 @@
 
 Get it directly from [Google Play](https://play.google.com/store/apps/details?id=cl.icripto.xmrpos):
 
-![Google Play Badge](images/google-play-badge-logo-svgrepo-com.png)
+<p>
+  <img src="images/google-play-badge-logo-svgrepo-com.png" alt="Google Play" width="200"/>
+</p>
+
 
 ---
 
@@ -50,9 +56,11 @@ Get it directly from [Google Play](https://play.google.com/store/apps/details?id
 
 ## 📊 Screenshots
 
-![Screenshot 1](images/pos.jpeg)
-![Screenshot 2](images/setup.jpeg)
-![Screenshot 3](images/qrcode.jpeg)
+<p>
+  <img src="images/pos.png" alt="POS Screen" width="150"/>
+  <img src="images/setup.png" alt="Setup Screen" width="150"/>
+  <img src="images/qrcode.png" alt="QR Code Screen" width="150"/>
+</p>
 
 ---
 
@@ -84,7 +92,9 @@ If you have questions or suggestions, reach out via GitHub Issues
 
 If you find this contribution useful, consider donating:
 
-![QR XMR](images/qrcode_xmr.png)
+<p>
+  <img src="images/qrcode_xmr.png" alt="Monero Symbol" width="100"/>
+</p>
 89gjKVSYpkjMoMMpBENvJmVyXSFSLhyw81oT852wvyJygQx9aPteYGDZwLDsuqi6ED7FpHurjRuaNUWGzdYoYyuyCSamB4R
 
 
