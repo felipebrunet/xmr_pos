@@ -1,6 +1,7 @@
 # 🚀 XMR POS
 
-<p>
+
+<p style="text-align: center;">
   <img src="images/logo1.png" alt="XMR POS logo" width="300"/>
 </p>
 
@@ -21,11 +22,13 @@
 
 ## 📥 Installation
 
-Get it directly from [Google Play](https://play.google.com/store/apps/details?id=cl.icripto.xmrpos):
-
 <p>
-  <img src="images/google-play-badge-logo-svgrepo-com.png" alt="Google Play" width="200"/>
+  <a href="https://play.google.com/store/apps/details?id=cl.icripto.xmrpos">
+    <img src="images/google-play-badge-logo-svgrepo-com.png" alt="Download XMR POS on Google Play" height="60"/>
+  </a>
 </p>
+
+[![Available at Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/es_419_badge_web_generic.png)](https://play.google.com/store/apps/details?id=cl.icripto.xmrpos)
 
 
 ---
@@ -92,7 +95,7 @@ If you have questions or suggestions, reach out via GitHub Issues
 
 If you find this contribution useful, consider donating:
 <p>
-<img src="https://i.imgur.com/BZAuKE9.png" alt="QR Code Screen" width="100"/>
+<img src="https://i.imgur.com/BZAuKE9.png" alt="QR Code Screen" width="250"/>
 </p>
 89gjKVSYpkjMoMMpBENvJmVyXSFSLhyw81oT852wvyJygQx9aPteYGDZwLDsuqi6ED7FpHurjRuaNUWGzdYoYyuyCSamB4R
 
