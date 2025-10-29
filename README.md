@@ -2,7 +2,7 @@
 
 
 <p style="text-align: center;">
-  <img src="images/logo1.png" alt="XMR POS logo" width="300"/>
+  <img src="images/logo1.png" alt="XMR POS logo" width="200"/>
 </p>
 
 
@@ -23,13 +23,10 @@
 ## 📥 Installation
 
 <p>
-  <a href="https://play.google.com/store/apps/details?id=cl.icripto.xmrpos">
+  <a href="https://play.google.com/store/apps/details?id=cl.icripto.xmrpos" target="_blank">
     <img src="images/google-play-badge-logo-svgrepo-com.png" alt="Download XMR POS on Google Play" height="200"/>
   </a>
 </p>
-
-[![Get it on Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=cl.icripto.xmrpos)
-
 
 
 ---
