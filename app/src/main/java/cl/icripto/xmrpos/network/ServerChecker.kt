@@ -1,6 +1,5 @@
 package cl.icripto.xmrpos.network
 
-import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
@@ -22,7 +21,7 @@ suspend fun testServerUrl(url: String): Boolean {
         val response = client.get("$testUrl/get_info")
         response.status.value == 200
     } catch (e: Exception) {
-        Log.e("ServerChecker", "Error testing server URL: ${e.message}", e)
+//        Log.e("ServerChecker", "Error testing server URL: ${e.message}", e)
         false
     }
 }

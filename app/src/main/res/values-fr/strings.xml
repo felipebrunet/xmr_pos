@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">XMR POS</string>
+    <string name="restaurant_name_placeholder">Nom du restaurant</string>
+    <string name="settings_button">PARAMÈTRES</string>
+    <string name="pay_button">PAYER</string>
+    <string name="numpad_delete">SUPPRIMER</string>
+    <string name="payment_screen_amount_to_pay">Montant à payer : %1$s %2$s</string>
+    <string name="payment_screen_qr_code_description">Code QR de paiement Monero</string>
+    <string name="back_button">Retour</string>
+    <string name="settings_screen_title">Paramètres</string>
+    <string name="settings_currency_label">Devise :</string>
+    <string name="settings_tips_label">Pourboires :</string>
+    <string name="delete_pin_button">SUPPRIMER PIN</string>
+    <string name="set_pin_button">DÉFINIR PIN</string>
+    <string name="unlock_screen_title">Saisir le PIN pour déverrouiller</string>
+    <string name="unlock_button">DÉVERROUILLER</string>
+    <string name="tip_dialog_title">Sélectionner un pourboire</string>
+    <string name="tip_dialog_no_tip">Pas de pourboire</string>
+    <string name="settings_server_url_label">URL du serveur Monero :</string>
+    <string name="settings_base_address_label">Adresse de base Monero :</string>
+    <string name="settings_view_key_label">Clé affichage secrète Monero :</string>
+    <string name="settings_major_index_label">Index majeur Monero :</string>
+    <string name="settings_minor_index_label">Index mineur max Monero :</string>
+    <string name="settings_restaurant_name_label">Nom du restaurant :</string>
+    <string name="go_back_button">RETOUR</string>
+    <string name="save_button">ENREGISTRER</string>
+    <string name="payment_successful">Paiement réussi</string>
+    <string name="payment_received">Paiement reçu !</string>
+    <string name="copy_qr_code">Copier le code QR</string>
+</resources>

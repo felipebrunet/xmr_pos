@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">XMR POS</string>
+    <string name="restaurant_name_placeholder">Nome del ristorante</string>
+    <string name="settings_button">IMPOSTAZIONI</string>
+    <string name="pay_button">PAGA</string>
+    <string name="numpad_delete">CANCELLA</string>
+    <string name="payment_screen_amount_to_pay">Importo da pagare: %1$s %2$s</string>
+    <string name="payment_screen_qr_code_description">Codice QR di pagamento Monero</string>
+    <string name="back_button">Indietro</string>
+    <string name="settings_screen_title">Impostazioni</string>
+    <string name="settings_currency_label">Valuta:</string>
+    <string name="settings_tips_label">Mance:</string>
+    <string name="delete_pin_button">CANCELLA PIN</string>
+    <string name="set_pin_button">IMPOSTA PIN</string>
+    <string name="unlock_screen_title">Inserisci il PIN per sbloccare</string>
+    <string name="unlock_button">SBLOCCA</string>
+    <string name="tip_dialog_title">Seleziona mancia</string>
+    <string name="tip_dialog_no_tip">Nessuna mancia</string>
+    <string name="settings_server_url_label">URL del server Monero:</string>
+    <string name="settings_base_address_label">Indirizzo di base Monero:</string>
+    <string name="settings_view_key_label">Chiave di visualizzazione segreta Monero:</string>
+    <string name="settings_major_index_label">Indice maggiore Monero:</string>
+    <string name="settings_minor_index_label">Indice minore massimo Monero:</string>
+    <string name="settings_restaurant_name_label">Nome del ristorante:</string>
+    <string name="go_back_button">TORNA INDIETRO</string>
+    <string name="save_button">SALVA</string>
+    <string name="payment_successful">Pagamento riuscito</string>
+    <string name="payment_received">Pagamento ricevuto!</string>
+    <string name="copy_qr_code">Copia codice QR</string>
+</resources>

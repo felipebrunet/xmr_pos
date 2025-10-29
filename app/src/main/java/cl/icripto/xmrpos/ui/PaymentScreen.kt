@@ -3,7 +3,6 @@ package cl.icripto.xmrpos.ui
 import android.annotation.SuppressLint
 import android.content.ClipboardManager
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -72,14 +71,14 @@ private val httpClient = HttpClient(Android) {
 }
 
 private suspend fun fetchXmrPrice(currency: String): Double? {
-    Log.d("PaymentScreen", "Attempting to fetch XMR price...")
+//    Log.d("PaymentScreen", "Attempting to fetch XMR price...")
     return try {
         val response: JsonObject = httpClient.get("https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=${currency.lowercase()}").body()
         val price = response["monero"]?.jsonObject?.get(currency.lowercase())?.jsonPrimitive?.double
-        Log.d("PaymentScreen", "Successfully fetched XMR price: $price")
+//        Log.d("PaymentScreen", "Successfully fetched XMR price: $price")
         price
     } catch (e: Exception) {
-        Log.e("PaymentScreen", "Error fetching XMR price: ${e.message}", e)
+//        Log.e("PaymentScreen", "Error fetching XMR price: ${e.message}", e)
         null
     }
 }
@@ -133,7 +132,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
 //                Toast.makeText(context, "Subaddress: $subaddress", Toast.LENGTH_LONG).show()
 
                 publicSpendKey = getPublicSpendKeyHex(subaddress)
-                Log.d("PaymentScreen", "Public Spend Key: $publicSpendKey")
+//                Log.d("PaymentScreen", "Public Spend Key: $publicSpendKey")
 
             } catch (e: Exception) {
                 Toast.makeText(context, "Error deriving subaddress: ${e.message}", Toast.LENGTH_LONG).show()
@@ -147,7 +146,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
             xmrAmount = try {
                 BigDecimal(amount).setScale(12, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
             } catch (e: NumberFormatException) {
-                Log.e("PaymentScreen", "Invalid amount format for XMR: $amount", e)
+//                Log.e("PaymentScreen", "Invalid amount format for XMR: $amount", e)
                 null
             }
         } else {
@@ -160,10 +159,10 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                         .stripTrailingZeros()
                         .toPlainString()
                 } else {
-                    Log.e("PaymentScreen", "Invalid amount format: $amount")
+//                    Log.e("PaymentScreen", "Invalid amount format: $amount")
                 }
             } else {
-                Log.e("PaymentScreen", "Error fetching price for ${settings.currency}")
+//                Log.e("PaymentScreen", "Error fetching price for ${settings.currency}")
             }
         }
     }
@@ -176,10 +175,10 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
             delay(100) // Add a small delay to avoid overwhelming the server
             val lastBlockHashes = fetchLastBlockHashes(settings.moneroServerUrl)
             val allHashes = (mempoolHashes + lastBlockHashes).distinct()
-            Log.d("PaymentScreen", "All hashes: $allHashes")
+//            Log.d("PaymentScreen", "All hashes: $allHashes")
 
             if (allHashes.isNotEmpty()) {
-                Log.d("PaymentScreen", "Total hashes to check: ${allHashes.size}")
+//                Log.d("PaymentScreen", "Total hashes to check: ${allHashes.size}")
 
                 val txsDetails = fetchTransactionDetails(settings.moneroServerUrl, allHashes)
                 if (txsDetails.isNotEmpty()) {
@@ -197,7 +196,7 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                             )
 
                             if (match) {
-                                Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
+//                                Log.d("PaymentScreen", "Payment found in transaction: $match, index: $index")
                                 paymentSuccess = verifyAmount(
                                     settings.secretViewKey,
                                     txPublicKey,
@@ -207,14 +206,14 @@ fun PaymentScreen(navController: NavController, amount: String, settingsViewMode
                                 )
                                 if (paymentSuccess) break
                             } else {
-                                Log.d("PaymentScreen", "Payment not found in transaction with tx_pubkey: $txPublicKey")
+//                                Log.d("PaymentScreen", "Payment not found in transaction with tx_pubkey: $txPublicKey")
                             }
                         } else {
-                            Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey")
+//                            Log.w("PaymentScreen", "Cannot check payment, missing txPublicKey")
                         }
                     }
                 } else {
-                    Log.w("PaymentScreen", "Could not retrieve transaction details for any hash")
+//                    Log.w("PaymentScreen", "Could not retrieve transaction details for any hash")
                 }
             }
             if (!paymentSuccess) {

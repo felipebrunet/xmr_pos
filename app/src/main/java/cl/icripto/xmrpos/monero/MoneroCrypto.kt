@@ -1,6 +1,5 @@
 package cl.icripto.xmrpos.monero
 
-import android.util.Log
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -62,10 +61,10 @@ fun verifyAmount(
     val amountXmr = decryptedAmount / 1_000_000_000_000.0
 
     if (amountToReceive == amountXmr) {
-        Log.d("PaymentScreen", "Success!!! Amount match: $amountXmr")
+//        Log.d("PaymentScreen", "Success!!! Amount match: $amountXmr")
         return true
     } else {
-        Log.d("PaymentScreen", "Amount does not match. Required amount: $amountToReceive, Detected amount $amountXmr")
+//        Log.d("PaymentScreen", "Amount does not match. Required amount: $amountToReceive, Detected amount $amountXmr")
         return false
     }
 }
@@ -107,7 +106,7 @@ fun isTxContainingPayment(
         val computedStealthAddress = ByteArray(32).apply { MoneroSubaddress.edwardsAdd(this, point, publicSpendKey) }
 
         if (computedStealthAddress.contentEquals(outputPubkey)) {
-            Log.d("MoneroCrypto", "Output key match!")
+//            Log.d("MoneroCrypto", "Output key match!")
             return Pair(true, i)
         }
     }

@@ -1,6 +1,6 @@
 package cl.icripto.xmrpos.network
 
-import android.util.Log
+
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
@@ -129,12 +129,12 @@ fun getTxPublicKeyFromExtra(extra: List<Int>): String? {
 }
 
 suspend fun fetchMempoolHashes(serverUrl: String): MempoolHashesResponse? {
-    Log.d("MoneroRpc", "Attempting to fetch mempool hashes...")
+//    Log.d("MoneroRpc", "Attempting to fetch mempool hashes...")
     val url = serverUrl.removeSuffix("/")
     return try {
         httpClient.get("$url/get_transaction_pool_hashes").body()
     } catch (e: Exception) {
-        Log.e("MoneroRpc", "Error fetching mempool hashes: ${e.message}", e)
+//        Log.e("MoneroRpc", "Error fetching mempool hashes: ${e.message}", e)
         null
     }
 }
@@ -152,9 +152,9 @@ suspend fun fetchLastBlockHashes(serverUrl: String): List<String> {
             setBody(blockCountRequest)
         }.body()
         height = response.result.count
-        Log.d("MoneroRpc", "Current block height: $height")
+//        Log.d("MoneroRpc", "Current block height: $height")
     } catch (e: Exception) {
-        Log.e("MoneroRpc", "Error fetching block count: ${e.message}", e)
+//        Log.e("MoneroRpc", "Error fetching block count: ${e.message}", e)
         return emptyList()
     }
 
@@ -173,12 +173,12 @@ suspend fun fetchLastBlockHashes(serverUrl: String): List<String> {
 
             response.result.txHashes?.let {
                 if (it.isNotEmpty()) {
-                    Log.d("PaymentScreen", "Found ${it.size} transactions in block $blockHeight")
+//                    Log.d("PaymentScreen", "Found ${it.size} transactions in block $blockHeight")
                     allTxHashes.addAll(it)
                 }
             }
         } catch (e: Exception) {
-            Log.e("PaymentScreen", "Error fetching block at height $blockHeight: ${e.message}", e)
+//            Log.e("PaymentScreen", "Error fetching block at height $blockHeight: ${e.message}", e)
             // Continue to next block even if one fails
         }
     }
@@ -187,7 +187,7 @@ suspend fun fetchLastBlockHashes(serverUrl: String): List<String> {
 }
 
 suspend fun fetchTransactionDetails(serverUrl: String, hashes: List<String>): List<TransactionDetails> {
-    Log.d("MoneroRpc", "Attempting to fetch transaction details for ${hashes.size} hashes...")
+//    Log.d("MoneroRpc", "Attempting to fetch transaction details for ${hashes.size} hashes...")
     val url = serverUrl.removeSuffix("/")
     val transactionDetailsList = mutableListOf<TransactionDetails>()
 
@@ -201,7 +201,7 @@ suspend fun fetchTransactionDetails(serverUrl: String, hashes: List<String>): Li
             setBody(TxsHashesRequest(txsHashes = hashes))
         }
     } catch (e: Exception) {
-        Log.e("MoneroRpc", "Error fetching transactions: ${e.message}", e)
+//        Log.e("MoneroRpc", "Error fetching transactions: ${e.message}", e)
         return emptyList()
     }
 
@@ -209,7 +209,7 @@ suspend fun fetchTransactionDetails(serverUrl: String, hashes: List<String>): Li
         val responseBody: JsonObject = httpResponse.body()
         val status = responseBody["status"]?.jsonPrimitive?.content
         if (status != "OK") {
-            Log.e("MoneroRpc", "Node returned status: $status")
+//            Log.e("MoneroRpc", "Node returned status: $status")
             return emptyList()
         }
 
@@ -225,15 +225,15 @@ suspend fun fetchTransactionDetails(serverUrl: String, hashes: List<String>): Li
                         val details = jsonParser.decodeFromString<TransactionDetails>(asJsonString)
                         transactionDetailsList.add(details)
                     } catch (e: Exception) {
-                        Log.e("MoneroRpc", "Error parsing transaction details: ${e.message}", e)
+//                        Log.e("MoneroRpc", "Error parsing transaction details: ${e.message}", e)
                     }
                 } else {
-                    Log.e("MoneroRpc", "as_json field is null or blank for a transaction")
+//                    Log.e("MoneroRpc", "as_json field is null or blank for a transaction")
                 }
             }
         }
     } else {
-        Log.e("MoneroRpc", "Failed to get transactions: ${httpResponse?.status?.value}")
+//        Log.e("MoneroRpc", "Failed to get transactions: ${httpResponse?.status?.value}")
     }
     return transactionDetailsList
 }
