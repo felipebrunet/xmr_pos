@@ -7,6 +7,7 @@ plugins {
 
 android {
     namespace = "cl.icripto.xmrpos"
+
     compileSdk {
         version = release(36)
     }
