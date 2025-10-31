@@ -93,10 +93,9 @@ If you have questions or suggestions, reach out via GitHub Issues or to email ic
 
 If you find this contribution useful, consider donating:
 <p>
-<img src="https://i.imgur.com/BZAuKE9.png" alt="QR Code Screen" width="250"/>
+<img src="https://i.imgur.com/sP4HmNn.png" alt="QR Code Screen" width="250"/>
 </p>
-89gjKVSYpkjMoMMpBENvJmVyXSFSLhyw81oT852wvyJygQx9aPteYGDZwLDsuqi6ED7FpHurjRuaNUWGzdYoYyuyCSamB4R
-
+83if2C1cge1MXqDYKPnexuRu64SZPBd4XXfXCWAtmNhSSAaM9C9YbR3H51S4RkrWHoMHftTsx1eRNdJERBF1Zi9v2Z7E2o8
 
 ---
 
