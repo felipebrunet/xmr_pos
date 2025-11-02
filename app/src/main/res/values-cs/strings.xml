@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">XMR POS</string>
+    <string name="restaurant_name_placeholder">Název restaurace</string>
+    <string name="settings_button">NASTAVENÍ</string>
+    <string name="pay_button">ZAPLATIT</string>
+    <string name="numpad_delete">SMAZAT</string>
+    <string name="payment_screen_amount_to_pay">Částka k zaplacení: %1$s %2$s</string>
+    <string name="payment_screen_qr_code_description">QR kód pro platbu Monero</string>
+    <string name="back_button">Zpět</string>
+    <string name="settings_screen_title">Nastavení</string>
+    <string name="settings_currency_label">Měna:</string>
+    <string name="settings_tips_label">Spropitné:</string>
+    <string name="delete_pin_button">SMAZAT PIN</string>
+    <string name="set_pin_button">NASTAVIT PIN</string>
+    <string name="unlock_screen_title">Zadejte PIN pro odemčení</string>
+    <string name="unlock_button">ODEMKNOUT</string>
+    <string name="tip_dialog_title">Vyberte spropitné</string>
+    <string name="tip_dialog_no_tip">Bez spropitného</string>
+    <string name="settings_server_url_label">URL serveru Monero:</string>
+    <string name="settings_base_address_label">Základní adresa Monero:</string>
+    <string name="settings_view_key_label">Tajný klíč k zobrazení Monero:</string>
+    <string name="settings_major_index_label">Hlavní index Monero:</string>
+    <string name="settings_minor_index_label">Maximální vedlejší index Monero:</string>
+    <string name="settings_restaurant_name_label">Název restaurace:</string>
+    <string name="go_back_button">ZPĚT</string>
+    <string name="save_button">ULOŽIT</string>
+    <string name="payment_successful" translatable="false">Payment Successful</string>
+    <string name="payment_received">Platba přijata!</string>
+    <string name="copy_qr_code">Kopírovat QR kód</string>
+</resources>

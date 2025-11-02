@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">XMR POS</string>
+    <string name="restaurant_name_placeholder">रेस्तरां का नाम</string>
+    <string name="settings_button">सेटिंग्स</string>
+    <string name="pay_button">भुगतान करें</string>
+    <string name="numpad_delete">हटाएं</string>
+    <string name="payment_screen_amount_to_pay">भुगतान करने के लिए राशि: %1$s %2$s</string>
+    <string name="payment_screen_qr_code_description">मोनेरो भुगतान क्यूआर कोड</string>
+    <string name="back_button">वापस</string>
+    <string name="settings_screen_title">सेटिंग्स</string>
+    <string name="settings_currency_label">मुद्रा:</string>
+    <string name="settings_tips_label">टिप्स:</string>
+    <string name="delete_pin_button">पिन हटाएं</string>
+    <string name="set_pin_button">पिन सेट करें</string>
+    <string name="unlock_screen_title">अनलॉक करने के लिए पिन दर्ज करें</string>
+    <string name="unlock_button">अनलॉक</string>
+    <string name="tip_dialog_title">टिप चुनें</string>
+    <string name="tip_dialog_no_tip">कोई टिप नहीं</string>
+    <string name="settings_server_url_label">मोनेरो सर्वर यूआरएल:</string>
+    <string name="settings_base_address_label">मोनेरो बेस एड्रेस:</string>
+    <string name="settings_view_key_label">मोनेरो सीक्रेट व्यू की:</string>
+    <string name="settings_major_index_label">मोनेरो मेजर इंडेक्स:</string>
+    <string name="settings_minor_index_label">मोनेरो मैक्स माइनर इंडेक्स:</string>
+    <string name="settings_restaurant_name_label">रेस्तरां का नाम:</string>
+    <string name="go_back_button">वापस जाओ</string>
+    <string name="save_button">सहेजें</string>
+    <string name="payment_successful" translatable="false">Payment Successful</string>
+    <string name="payment_received">भुगतान प्राप्त हुआ!</string>
+    <string name="copy_qr_code">क्यूआर कोड कॉपी करें</string>
+</resources>
