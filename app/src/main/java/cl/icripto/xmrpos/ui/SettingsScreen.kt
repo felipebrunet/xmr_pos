@@ -65,6 +65,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
 
             SettingRow(stringResource(R.string.settings_currency_label)) {
                 var expanded by remember { mutableStateOf(false) }
+                val currencies = listOf("USD", "EUR", "XMR", "AUD", "CNY", "RUB", "TRY", "CLP", "BRL", "ARS", "MXN", "CAD", "JPY", "INR", "CHF", "CZK", "GBP", "UAH")
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                     TextField(
                         value = currency,
@@ -79,9 +80,15 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
                         )
                     )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(text = { Text("USD") }, onClick = { currency = "USD"; expanded = false })
-                        DropdownMenuItem(text = { Text("EUR") }, onClick = { currency = "EUR"; expanded = false })
-                        DropdownMenuItem(text = { Text("XMR") }, onClick = { currency = "XMR"; expanded = false })
+                        currencies.forEach { currencyName ->
+                            DropdownMenuItem(
+                                text = { Text(currencyName) },
+                                onClick = {
+                                    currency = currencyName
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
